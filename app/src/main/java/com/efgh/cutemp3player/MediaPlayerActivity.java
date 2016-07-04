@@ -171,9 +171,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
         Log.d("Log","mVisualizer:"+mVisualizer);
         Log.d("Log","mPlayer:"+mPlayer);
 
-      /*
-
-                */
     }
 
 
