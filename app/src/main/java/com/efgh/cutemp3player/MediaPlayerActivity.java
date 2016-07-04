@@ -1,5 +1,6 @@
 package com.efgh.cutemp3player;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
+import android.media.audiofx.Visualizer;
 
 import android.os.Handler;
 
@@ -27,7 +29,10 @@ public class MediaPlayerActivity extends AppCompatActivity {
     private Handler myHandler = new Handler();
 
     private SeekBar seekBar;
+
     private MediaPlayer mPlayer;
+    private VisualizerView mVisualizerView;
+    private Visualizer mVisualizer;
 
     private double finalTime = 0;
     private double currentTime = 0;
@@ -44,6 +49,8 @@ public class MediaPlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_player);
 
+
+
         playPauseButton = (ImageButton)findViewById(R.id.playButton);
 
         playPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -59,50 +66,114 @@ public class MediaPlayerActivity extends AppCompatActivity {
         seekBar.setClickable(true);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-            {
-                if(mPlayer!= null)
-                {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (mPlayer != null) {
                     currentTime = progress;
                     //currentTime = (int)(finalTime * progress)/100;
-                    long currTime = TimeUnit.MILLISECONDS.toSeconds((int)currentTime);
+                    long currTime = TimeUnit.MILLISECONDS.toSeconds((int) currentTime);
                     long duration = TimeUnit.MILLISECONDS.toSeconds((int) mPlayer.getDuration());
 
-                    if(currTime == duration)
-                    {
+                    if (currTime == duration) {
                         playPauseButton.setImageResource(R.drawable.play);
 
                         mPlayer.seekTo(0);//TODO: here is the place you will be modifying for repeat-once/always
                         mPlayer.stop();
 
                     }
-                   //
-                    Log.i("Log","progress:"+progress+",currentTime:"+currentTime);
+                    //
+                    Log.i("Log", "progress:" + progress + ",currentTime:" + currentTime);
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
 
-                if(mPlayer!=null )
-                {
-                    if(mPlayer.isPlaying())
-                    {
+                if (mPlayer != null) {
+                    if (mPlayer.isPlaying()) {
                         mPlayer.pause();
                     }
                 }
             }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar)
-            {
-                if(mPlayer!= null)
-                {
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (mPlayer != null) {
                     mPlayer.seekTo((int) currentTime);
                     mPlayer.start();
                 }
             }
         });
+
+        mVisualizerView = (VisualizerView)findViewById(R.id.myvisualizerview);
+        Log.d("Log", "oncreate executed, about to start initAudio()");
+
+        initAudio();
+
+    }
+
+    private void initAudio()
+    {
+
+        mPlayer = MediaPlayer.create(MediaPlayerActivity.this, R.raw.song);
+        mPlayer
+                .setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    public void onCompletion(MediaPlayer mediaPlayer) {
+                        mVisualizer.setEnabled(false);
+                    }
+                });
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+
+        setupVisualizerFxAndUI();
+        // Make sure the visualizer is enabled only when you actually want to
+        // receive data, and
+        // when it makes sense to receive data.
+
+        mVisualizer.setEnabled(true);
+
+
+
+        // When the stream ends, we don't need to collect any more data. We
+        // don't do this in
+        // setupVisualizerFxAndUI because we likely want to have more,
+        // non-Visualizer related code
+        // in this callback.
+
+
+
+
+    }
+
+    private void setupVisualizerFxAndUI()
+    {
+
+        // Create the Visualizer object and attach it to our media player.
+        try
+        {
+            mVisualizer = new Visualizer(mPlayer.getAudioSessionId());
+            mVisualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
+            mVisualizer.setDataCaptureListener(
+                    new Visualizer.OnDataCaptureListener() {
+                        public void onWaveFormDataCapture(Visualizer visualizer,
+                                                          byte[] bytes, int samplingRate) {
+                            mVisualizerView.updateVisualizer(bytes);
+                        }
+
+                        public void onFftDataCapture(Visualizer visualizer,
+                                                     byte[] bytes, int samplingRate) {
+                        }
+                    }, Visualizer.getMaxCaptureRate() / 2, true, false);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        Log.d("Log","mVisualizer:"+mVisualizer);
+        Log.d("Log","mPlayer:"+mPlayer);
+
+      /*
+
+                */
     }
 
 
@@ -111,11 +182,12 @@ public class MediaPlayerActivity extends AppCompatActivity {
     {
         try
         {
-            if (mPlayer == null) // play button changes to pause button
+            if (mPlayer.isPlaying()==true) // play button changes to pause button
             {
+
                 playPauseButton.setImageResource(R.drawable.pause);
 
-                mPlayer = MediaPlayer.create(MediaPlayerActivity.this, R.raw.song);
+
 
                 mPlayer.start();
                 mPlayerState = GlobalVariables.MediaPlayer.PLAYING;
