@@ -15,8 +15,8 @@
 
     <com.efgh.cutemp3player.VisualizerView
         android:id="@+id/myvisualizerview"
-        android:layout_width="300dp"
-        android:layout_height="300dp" />
+        android:layout_width="fill_parent"
+        android:layout_height="100dp" />
 
     <SeekBar
         android:layout_width="match_parent"
