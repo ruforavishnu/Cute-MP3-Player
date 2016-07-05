@@ -17,6 +17,7 @@ import android.widget.SeekBar;
 import android.media.audiofx.Visualizer;
 
 import android.os.Handler;
+import android.widget.TextView;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +41,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
     private int oneTimeOnly = 0;
 
     private ImageButton playPauseButton;
-
+    private TextView durationTextView;
 
 
 
@@ -50,7 +51,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_media_player);
 
 
-
+        durationTextView = (TextView)findViewById(R.id.durationText);
         playPauseButton = (ImageButton)findViewById(R.id.playButton);
 
         playPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -253,9 +254,18 @@ public class MediaPlayerActivity extends AppCompatActivity {
                 try {
                    // if(mPlayer.isPlaying()==true)
                     {
-                        Log.i("Log", "runnable thread running");
                         currentTime = mPlayer.getCurrentPosition();
                         seekBar.setProgress((int) currentTime);
+
+                        String currentTimeString = calcTimeInMinsAndSecs(currentTime);
+                        String totalTimeString = calcTimeInMinsAndSecs(finalTime);
+
+
+
+
+                        durationTextView.setText(currentTimeString+"/"+totalTimeString);
+                        Log.i("Log", "runnable thread running");
+
                         myHandler.postDelayed(this, 100);
                     }
                 }
@@ -267,6 +277,17 @@ public class MediaPlayerActivity extends AppCompatActivity {
         }
 
     };
+
+    private String calcTimeInMinsAndSecs(double time)
+    {
+        String result = "";
+        long currMinutes = TimeUnit.MILLISECONDS.toMinutes((int) time);
+        long currSeconds = TimeUnit.MILLISECONDS.toSeconds((int)time) - (currMinutes * 60);
+        String currSecondsWithPrecedingZero = (currSeconds < 10) ? "0"+ String.valueOf(currSeconds) : String.valueOf(currSeconds);
+        result = String.valueOf(currMinutes)+":"+ currSecondsWithPrecedingZero;
+
+        return result;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
