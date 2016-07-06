@@ -72,4 +72,12 @@
         android:layout_column="0"
         android:layout_marginTop="15dp" />
 
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="200dp"
+        android:id="@+id/albumArtImageView"
+        android:layout_below="@+id/myvisualizerview"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="79dp" />
+
 </RelativeLayout>

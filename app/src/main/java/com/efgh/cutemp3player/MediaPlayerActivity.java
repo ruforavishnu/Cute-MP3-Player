@@ -1,6 +1,9 @@
 package com.efgh.cutemp3player;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +16,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.media.audiofx.Visualizer;
 
@@ -42,6 +46,8 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
     private ImageButton playPauseButton;
     private TextView durationTextView;
+    private ImageView albumArtImageView;
+
 
 
 
@@ -54,6 +60,21 @@ public class MediaPlayerActivity extends AppCompatActivity {
         durationTextView = (TextView)findViewById(R.id.durationText);
         playPauseButton = (ImageButton)findViewById(R.id.playButton);
 
+        albumArtImageView = (ImageView)findViewById(R.id.albumArtImageView);
+
+
+            MediaMetadataRetriever songDetailsRetriever = new MediaMetadataRetriever();
+
+            songDetailsRetriever.setDataSource("/sdcard/audio.mp3");
+            byte[] art = songDetailsRetriever.getEmbeddedPicture();
+            Bitmap songImage = BitmapFactory.decodeByteArray(art, 0, art.length);
+            albumArtImageView.setImageBitmap(songImage);
+
+
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
