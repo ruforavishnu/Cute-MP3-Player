@@ -5,7 +5,9 @@ import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +25,7 @@ import android.media.audiofx.Visualizer;
 import android.os.Handler;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 
@@ -63,18 +66,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
         albumArtImageView = (ImageView)findViewById(R.id.albumArtImageView);
 
 
-            MediaMetadataRetriever songDetailsRetriever = new MediaMetadataRetriever();
 
-            songDetailsRetriever.setDataSource("/sdcard/audio.mp3");
-            byte[] art = songDetailsRetriever.getEmbeddedPicture();
-            Bitmap songImage = BitmapFactory.decodeByteArray(art, 0, art.length);
-            albumArtImageView.setImageBitmap(songImage);
-
-
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
         playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
