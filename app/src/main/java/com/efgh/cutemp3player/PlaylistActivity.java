@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.LabeledIntent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,6 +17,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,6 +34,7 @@ import com.mpatric.mp3agic.Mp3File;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class PlaylistActivity extends AppCompatActivity {
@@ -128,7 +132,16 @@ public class PlaylistActivity extends AppCompatActivity {
                         Log.i("logtest", "recyclerview was  touched at position:" + position);
                         Log.i("logtest","view name:"+view.getClass().getName());
 
-                        ViewGroup group = (ViewGroup)view;
+                        ViewGroup group = (ViewGroup) view;
+                        if(GlobalVariables.selectedSong != null)
+                        {
+                            GlobalVariables.selectedSong.setBackgroundResource(R.color.normal);
+                        }
+
+                        GlobalVariables.selectedSong = (ViewGroup) group;
+                        group.setBackgroundResource(R.color.colorPrimaryDark);
+
+
                         for(int i = 0; i < group.getChildCount(); i++)
                         {
                             View childView = (View)group.getChildAt(i);
@@ -139,6 +152,12 @@ public class PlaylistActivity extends AppCompatActivity {
 
                                 if(childView.getTag()!=null)
                                 {
+
+                                    TextView headerTextView = (TextView)findViewById(childView.getId());
+
+
+
+
 
                                     Log.i("logtest", "tag:" + childView.getTag());
                                     MyTag tag = (MyTag)childView.getTag();

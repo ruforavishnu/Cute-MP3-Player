@@ -1,6 +1,7 @@
 package com.efgh.cutemp3player;
 
 import android.media.MediaPlayer;
+import android.view.ViewGroup;
 
 /**
  * Created by Vishnu on 04-Jul-16.
@@ -10,6 +11,7 @@ public class GlobalVariables
     public static  final int MP3_PATH_KEY = 54;
     public static int timesInvoked = 0;
     public static android.media.MediaPlayer mPlayer;
+    public static ViewGroup selectedSong = null;
     public static class MediaPlayer
     {
         public static String PLAYING = "playing";
