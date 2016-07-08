@@ -140,9 +140,10 @@ public class PlaylistActivity extends AppCompatActivity {
                                     Log.i("logtest", "tag:" + tag.getMp3FilePath());
                                     Uri songUri = Uri.parse(tag.getMp3FilePath());
 
-                                   /* Intent playMusicIntent = new Intent(PlaylistActivity.this, MediaPlayerActivity.class);
-                                    playMusicIntent.putExtra("songPath",songUri);
-                                    playMusicIntent.*/
+                                    Intent playMusicIntent = new Intent(PlaylistActivity.this, MediaPlayerActivity.class);
+                                    playMusicIntent.putExtra("SongPath",songUri.toString());
+                                    startActivity(playMusicIntent);
+
 
 
 

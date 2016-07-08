@@ -1,5 +1,6 @@
 package com.efgh.cutemp3player;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
@@ -63,7 +64,13 @@ public class MediaPlayerActivity extends AppCompatActivity {
         durationTextView = (TextView)findViewById(R.id.durationText);
         playPauseButton = (ImageButton)findViewById(R.id.playButton);
 
-        albumArtImageView = (ImageView)findViewById(R.id.albumArtImageView);
+        mVisualizerView = (VisualizerView)findViewById(R.id.myvisualizerview);
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
+
+
+
+
+       // albumArtImageView = (ImageView)findViewById(R.id.albumArtImageView);
 
 
 
@@ -76,27 +83,26 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
 
 
-        seekBar = (SeekBar) findViewById(R.id.seekBar);
+
         seekBar.setClickable(true);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
-                    currentTime = progress;
+                currentTime = progress;
 
-                    long currTime = TimeUnit.MILLISECONDS.toSeconds((int) currentTime);
-                    long duration = TimeUnit.MILLISECONDS.toSeconds( mPlayer.getDuration());
+                long currTime = TimeUnit.MILLISECONDS.toSeconds((int) currentTime);
+                long duration = TimeUnit.MILLISECONDS.toSeconds(mPlayer.getDuration());
 
-                    if (currTime == duration)
-                    {
-                        playPauseButton.setImageResource(R.drawable.play);
+                if (currTime == duration) {
+                    playPauseButton.setImageResource(R.drawable.play);
 
-                        mPlayer.seekTo(0);//TODO: here is the place you will be modifying for repeat-once/always
-                        mPlayer.pause();
+                    mPlayer.seekTo(0);//TODO: here is the place you will be modifying for repeat-once/always
+                    mPlayer.pause();
 
-                    }
+                }
 
-                 //   Log.i("Log", "progress:" + progress + ",currentTime:" + currentTime);
+                //   Log.i("Log", "progress:" + progress + ",currentTime:" + currentTime);
 
             }
 
@@ -104,38 +110,45 @@ public class MediaPlayerActivity extends AppCompatActivity {
             public void onStartTrackingTouch(SeekBar seekBar) {
 
 
-                if (mPlayer.isPlaying())
-                {
-                  //  mPlayer.pause();
+                if (mPlayer.isPlaying()) {
+                    //  mPlayer.pause();
                 }
 
             }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar)
-            {
+            public void onStopTrackingTouch(SeekBar seekBar) {
 
 
-
-
-                    mPlayer.seekTo((int) currentTime);
-               //     mPlayer.start();
-                    Log.d("Log", "currentTime:"+currentTime);
+                mPlayer.seekTo((int) currentTime);
+                //     mPlayer.start();
+                Log.d("Log", "currentTime:" + currentTime);
             }
 
         });
 
-        mVisualizerView = (VisualizerView)findViewById(R.id.myvisualizerview);
-
 
         initAudio();
+
+
+
 
     }
 
     private void initAudio()
     {
 
-        mPlayer = MediaPlayer.create(MediaPlayerActivity.this, R.raw.song);
+        Bundle extras = getIntent().getExtras();
+        Log.i("logtest","from inside mediaplayeractivity, value of extras:"+extras);
+        String mp3Path = extras.getString("SongPath");
+
+        mPlayer = MediaPlayer.create(getApplicationContext(),Uri.parse(mp3Path));
+        mPlayer.start();
+
+        playPauseButton.setImageResource(R.drawable.pause);//since song is playing show pause button image
+        myHandler.postDelayed(UpdateSongTime, 100);// use a Runnable Thread instance to run code every 100ms
+
+
 
         mPlayer
                 .setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -224,8 +237,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
 
                 mPlayer.start();// start playing music
-                playPauseButton.setImageResource(R.drawable.pause);//since song is playing show pause button image
-                myHandler.postDelayed(UpdateSongTime, 100);// use a Runnable Thread instance to run code every 100ms
+                playPauseButton.setImageResource(R.drawable.pause);// since song is paused show play button image
 
 
             }

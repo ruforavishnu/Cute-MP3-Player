@@ -66,18 +66,23 @@ public class MetaData
             if(mp3file.hasId3v1Tag())
             {
                 ID3v1 id3v1Tag = mp3file.getId3v1Tag();
+                if(id3v1Tag!=null)
+                {
 
-                songTitle = id3v1Tag.getTitle().length()>0 ? id3v1Tag.getTitle() : "No title found";
-                albumName = id3v1Tag.getAlbum().length()>0 ? id3v1Tag.getAlbum() : "No album found";
-
+                    songTitle = id3v1Tag.getTitle().length() > 0 ? id3v1Tag.getTitle() : "No title found";
+                    albumName = id3v1Tag.getAlbum().length() > 0 ? id3v1Tag.getAlbum() : "No album found";
+                }
 
             }
             if (mp3file.hasId3v2Tag())
             {
 
                 ID3v1 id3v2Tag = mp3file.getId3v1Tag();
-                songTitle = id3v2Tag.getTitle().length()>0 ? id3v2Tag.getTitle() : "No title found";
-                albumName = id3v2Tag.getAlbum().length()>0 ? id3v2Tag.getAlbum() : "No album found";
+                if(id3v2Tag!=null)
+                {
+                    songTitle = id3v2Tag.getTitle().length() > 0 ? id3v2Tag.getTitle() : "No title found";
+                    albumName = id3v2Tag.getAlbum().length() > 0 ? id3v2Tag.getAlbum() : "No album found";
+                }
 
             }
 
