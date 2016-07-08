@@ -31,6 +31,7 @@ import com.mpatric.mp3agic.Mp3File;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PlaylistActivity extends AppCompatActivity {
 
@@ -66,6 +67,23 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
     }
+    private List<File> getListFiles(File parentDir)
+    {
+        ArrayList<File> inFiles = new ArrayList<File>();
+        File[] files = parentDir.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                inFiles.addAll(getListFiles(file));
+            } else {
+                if(file.getName().endsWith(".mp3"))
+                {
+                    Log.i("logtest","filepath:"+file.getPath());
+                    inFiles.add(file);
+                }
+            }
+        }
+        return inFiles;
+    }
     public void loadPlaylist()
     {
         try {
@@ -73,66 +91,72 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
 
-            ArrayList<String> mp3FilesList = new ArrayList<String>();
+            List<File> mp3FilesList = new ArrayList<File>();
+            String filePath = Environment.getExternalStorageDirectory().getPath();
+            File file = new File(filePath);
+            mp3FilesList = getListFiles(file);
 
-            File file = new File(Environment.getExternalStorageDirectory().getPath());
-            String songTitle = "";
-            for(File f : file.listFiles())
+            ArrayList<String> mp3FileNamesList = new ArrayList<String>();
+            for(File f: mp3FilesList)
             {
-                if(f.getName().endsWith("mp3"))
-                {
+                mp3FileNamesList.add(f.getPath().toString());
+                Log.i("logtest", "mp3 file found:" + f.getPath().toString());
 
-                    try
-                    {
-                        mp3FilesList.add(f.toString());
-                    }
-                    catch (Exception e)
-                    {
-
-
-                        e.printStackTrace();
-                    }
-
-                }
             }
 
 
 
-            mAdapter = new RecycleViewAdapter(mp3FilesList);
+
+
+
+            mAdapter = new RecycleViewAdapter(mp3FileNamesList);
+
             playList.setAdapter(mAdapter);
 
-            playList.setOnTouchListener(new View.OnTouchListener() {
+            playList.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener()
+            {
                 @Override
-                public boolean onTouch(View v, MotionEvent event)
+                public void onItemClick(View view, int position)
                 {
-                    int action = event.getAction();
-                    if(action == MotionEvent.ACTION_DOWN)
-                    {
-                        int itemPosition = playList.indexOfChild(v);
 
-                        ViewGroup viewGroup = (ViewGroup)v;
-                        View layoutView = viewGroup.getChildAt(0);
+                    try {
+                        Log.i("logtest", "recyclerview was  touched at position:" + position);
+                        Log.i("logtest","view name:"+view.getClass().getName());
 
-                        ViewGroup relLayoutViewGroup = (ViewGroup)layoutView;
-
-
-
-                        for(int i=0; i < relLayoutViewGroup.getChildCount(); i++ )
+                        ViewGroup group = (ViewGroup)view;
+                        for(int i = 0; i < group.getChildCount(); i++)
                         {
-                            View nextChild = relLayoutViewGroup.getChildAt(i);
-                            Log.i("log","child:"+nextChild.getClass().getName());
-                            if(nextChild instanceof  TextView)
+                            View childView = (View)group.getChildAt(i);
+                            Log.i("logtest","view name:"+childView.getClass().getName());
+
+                            if(childView.getClass().getName().endsWith("TextView"))
                             {
-                                Log.i("log", " at pos:"+i+"+ obtained textview");
+
+                                if(childView.getTag()!=null)
+                                {
+
+                                    Log.i("logtest", "tag:" + childView.getTag());
+                                    MyTag tag = (MyTag)childView.getTag();
+                                    Log.i("logtest", "tag:" + tag.getMp3FilePath());
+                                    Uri songUri = Uri.parse(tag.getMp3FilePath());
+
+                                   /* Intent playMusicIntent = new Intent(PlaylistActivity.this, MediaPlayerActivity.class);
+                                    playMusicIntent.putExtra("songPath",songUri);
+                                    playMusicIntent.*/
+
+
+
+                                }
+
+
                             }
                         }
-
-
-
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    return false;
                 }
-            });
+            }));
+
 
 
 

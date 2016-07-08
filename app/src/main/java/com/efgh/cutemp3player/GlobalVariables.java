@@ -5,6 +5,7 @@ package com.efgh.cutemp3player;
  */
 public class GlobalVariables
 {
+    public static  final int MP3_PATH_KEY = 54;
     public static class MediaPlayer
     {
         public static String PLAYING = "playing";

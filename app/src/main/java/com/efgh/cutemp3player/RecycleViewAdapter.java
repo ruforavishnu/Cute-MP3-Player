@@ -25,6 +25,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     private ArrayList<String> mDataset;
     private Context mContext;
 
+
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
@@ -84,6 +85,8 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         try
         {
 
+            Context mContext = holder.txtHeader.getContext();
+
             MetaData metaData = new MetaData(mDataset.get(position),mContext);
 
             Bitmap albumArt = metaData.getAlbumArtBitmap();
@@ -100,8 +103,12 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
 
 
             holder.txtHeader.setText( metaData.getSongTitle());
-            holder.txtFooter.setText( metaData.getAlbumName());
+            holder.txtFooter.setText(metaData.getAlbumName());
             holder.txtHeader.setSelected(true);
+
+            MyTag pathTag = new MyTag(mDataset.get(position));
+          //  Log.i("logtest", "mDataset.get(position):" + mDataset.get(position));
+            holder.txtHeader.setTag(pathTag);
 
 
 

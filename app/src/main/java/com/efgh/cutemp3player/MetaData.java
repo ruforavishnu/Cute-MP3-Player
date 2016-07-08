@@ -27,6 +27,16 @@ public class MetaData
     private String songTitle="No title found", albumName="No album found";
     private Bitmap albumArtBitmap;//TODO: initialize albumArt to default res album art here itself
 
+    public String getMp3Path() {
+        return mp3Path;
+    }
+
+    public void setMp3Path(String mp3Path) {
+        this.mp3Path = mp3Path;
+    }
+
+    private String mp3Path;
+
     MediaMetadataRetriever metaRetreiver;
     private Context mContext;
     public boolean AsyncTaskCompleted = false;
@@ -35,7 +45,7 @@ public class MetaData
 
     public MetaData(String valueInDataset, Context myContext)
     {
-        final String mp3Path = valueInDataset;
+        mp3Path = valueInDataset;
         mContext = myContext;
 
         try
