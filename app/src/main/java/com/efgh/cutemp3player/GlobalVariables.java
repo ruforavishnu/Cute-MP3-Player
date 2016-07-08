@@ -1,11 +1,14 @@
 package com.efgh.cutemp3player;
 
+import android.media.MediaPlayer;
+
 /**
  * Created by Vishnu on 04-Jul-16.
  */
 public class GlobalVariables
 {
     public static  final int MP3_PATH_KEY = 54;
+    public static android.media.MediaPlayer mPlayer;
     public static class MediaPlayer
     {
         public static String PLAYING = "playing";

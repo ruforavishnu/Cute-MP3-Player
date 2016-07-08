@@ -39,7 +39,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
     private SeekBar seekBar;
 
-    private MediaPlayer mPlayer;
+
     private VisualizerView mVisualizerView;
     private Visualizer mVisualizer;
 
@@ -70,7 +70,9 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
 
 
-       // albumArtImageView = (ImageView)findViewById(R.id.albumArtImageView);
+
+
+
 
 
 
@@ -87,19 +89,24 @@ public class MediaPlayerActivity extends AppCompatActivity {
         seekBar.setClickable(true);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+            {
 
-                currentTime = progress;
+                try {
+                    currentTime = progress;
 
-                long currTime = TimeUnit.MILLISECONDS.toSeconds((int) currentTime);
-                long duration = TimeUnit.MILLISECONDS.toSeconds(mPlayer.getDuration());
+                    long currTime = TimeUnit.MILLISECONDS.toSeconds((int) currentTime);
+                    long duration = TimeUnit.MILLISECONDS.toSeconds(GlobalVariables.mPlayer.getDuration());
 
-                if (currTime == duration) {
-                    playPauseButton.setImageResource(R.drawable.play);
+                    if (currTime == duration) {
+                        playPauseButton.setImageResource(R.drawable.play);
 
-                    mPlayer.seekTo(0);//TODO: here is the place you will be modifying for repeat-once/always
-                    mPlayer.pause();
+                        GlobalVariables.mPlayer.seekTo(0);//TODO: here is the place you will be modifying for repeat-once/always
+                        GlobalVariables.mPlayer.pause();
 
+                    }
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
                 }
 
                 //   Log.i("Log", "progress:" + progress + ",currentTime:" + currentTime);
@@ -110,8 +117,12 @@ public class MediaPlayerActivity extends AppCompatActivity {
             public void onStartTrackingTouch(SeekBar seekBar) {
 
 
-                if (mPlayer.isPlaying()) {
-                    //  mPlayer.pause();
+                try {
+                    if (GlobalVariables.mPlayer.isPlaying()) {
+                        //  mPlayer.pause();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
             }
@@ -120,9 +131,13 @@ public class MediaPlayerActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
 
 
-                mPlayer.seekTo((int) currentTime);
-                //     mPlayer.start();
-                Log.d("Log", "currentTime:" + currentTime);
+                try {
+                    GlobalVariables.mPlayer.seekTo((int) currentTime);
+                    //     mPlayer.start();
+                    Log.d("Log", "currentTime:" + currentTime);
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
             }
 
         });
@@ -138,49 +153,78 @@ public class MediaPlayerActivity extends AppCompatActivity {
     private void initAudio()
     {
 
-        Bundle extras = getIntent().getExtras();
-        Log.i("logtest","from inside mediaplayeractivity, value of extras:"+extras);
-        String mp3Path = extras.getString("SongPath");
 
-        mPlayer = MediaPlayer.create(getApplicationContext(),Uri.parse(mp3Path));
-        mPlayer.start();
+        try {
+            Bundle extras = getIntent().getExtras();
+            Log.i("logtest","from inside mediaplayeractivity, value of extras:"+extras);
+            String mp3Path = extras.getString("SongPath");
 
-        playPauseButton.setImageResource(R.drawable.pause);//since song is playing show pause button image
-        myHandler.postDelayed(UpdateSongTime, 100);// use a Runnable Thread instance to run code every 100ms
+            if(GlobalVariables.mPlayer!=null)
+            {
+                if(GlobalVariables.mPlayer.isPlaying())
+                {
+                    GlobalVariables.mPlayer.stop();
 
+                }
+                GlobalVariables.mPlayer = null;
+            }
 
-
-        mPlayer
-                .setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    public void onCompletion(MediaPlayer mediaPlayer) {
-                        mVisualizer.setEnabled(false);
-                    }
-                });
-        finalTime = mPlayer.getDuration();
-
-        seekBar.setMax((int) finalTime);
+            GlobalVariables.mPlayer = MediaPlayer.create(getApplicationContext(),Uri.parse(mp3Path));
+            GlobalVariables.mPlayer.start();
 
 
+            MetaData metaData = new MetaData(mp3Path,getApplicationContext());
+            Log.i("log", "metaData:" + metaData);
+            Bitmap albumArt = metaData.getAlbumArtBitmap();
+            albumArtImageView = (ImageView)findViewById(R.id.albumArtImageView);
+            if(albumArt == null)
+            {
+                Log.i("log", "albumart is null, setting default albumart:" + metaData);
 
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+                albumArtImageView.setImageResource(R.drawable.cover);
+
+            }
+            else
+            {
+                Log.i("log", "albumart exists, setting associated albumart:" + metaData);
+                albumArtImageView.setImageBitmap(metaData.getAlbumArtBitmap());
+                //holder.albumArtImageView.setImageBitmap(metaData.getAlbumArtBitmap());
+            }
+
+            playPauseButton.setImageResource(R.drawable.pause);//since song is playing show pause button image
+            myHandler.postDelayed(UpdateSongTime, 100);// use a Runnable Thread instance to run code every 100ms
 
 
-        setupVisualizerFxAndUI();
-        // Make sure the visualizer is enabled only when you actually want to
-        // receive data, and
-        // when it makes sense to receive data.
+            GlobalVariables.mPlayer
+                    .setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        public void onCompletion(MediaPlayer mediaPlayer) {
+                            mVisualizer.setEnabled(false);
+                        }
+                    });
+            finalTime = GlobalVariables.mPlayer.getDuration();
 
-        mVisualizer.setEnabled(true);
-
-
-
-        // When the stream ends, we don't need to collect any more data. We
-        // don't do this in
-        // setupVisualizerFxAndUI because we likely want to have more,
-        // non-Visualizer related code
-        // in this callback.
+            seekBar.setMax((int) finalTime);
 
 
+            setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+
+            setupVisualizerFxAndUI();
+            // Make sure the visualizer is enabled only when you actually want to
+            // receive data, and
+            // when it makes sense to receive data.
+
+            mVisualizer.setEnabled(true);
+
+
+            // When the stream ends, we don't need to collect any more data. We
+            // don't do this in
+            // setupVisualizerFxAndUI because we likely want to have more,
+            // non-Visualizer related code
+            // in this callback.
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
 
 
     }
@@ -191,7 +235,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
         // Create the Visualizer object and attach it to our media player.
         try
         {
-            mVisualizer = new Visualizer(mPlayer.getAudioSessionId());
+            mVisualizer = new Visualizer(GlobalVariables.mPlayer.getAudioSessionId());
             mVisualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
             mVisualizer.setDataCaptureListener(
                     new Visualizer.OnDataCaptureListener() {
@@ -210,7 +254,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         Log.d("Log","mVisualizer:"+mVisualizer);
-        Log.d("Log","mPlayer:"+mPlayer);
+        Log.d("Log","mPlayer:"+GlobalVariables.mPlayer);
 
     }
 
@@ -218,25 +262,25 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
     public void playButton(View v)
     {
-        Log.d("Log","mPlayer.isPlaying():"+mPlayer.isPlaying());
+
         try
         {
 
-            if (mPlayer.isPlaying()==true) // play/pause  button clicked when song is playing-->show play button and pause music
+            if (GlobalVariables.mPlayer.isPlaying()==true) // play/pause  button clicked when song is playing-->show play button and pause music
             {
-                mPlayer.pause();// pausing the music
+                GlobalVariables.mPlayer.pause();// pausing the music
                 playPauseButton.setImageResource(R.drawable.play);// since song is paused show play button image
-                currentTime = mPlayer.getCurrentPosition();// remember the position where the music was paused
+                currentTime = GlobalVariables.mPlayer.getCurrentPosition();// remember the position where the music was paused
 
 
             }
-            else if(mPlayer.isPlaying()==false)// play/pause button clicked when song is not playing--> show pause button and play music
+            else if(GlobalVariables.mPlayer.isPlaying()==false)// play/pause button clicked when song is not playing--> show pause button and play music
             {
 
                 //Log.d("Log","")
 
 
-                mPlayer.start();// start playing music
+                GlobalVariables.mPlayer.start();// start playing music
                 playPauseButton.setImageResource(R.drawable.pause);// since song is paused show play button image
 
 
@@ -256,9 +300,9 @@ public class MediaPlayerActivity extends AppCompatActivity {
             playPauseButton.setImageResource(R.drawable.play);// since song is stopped show play button image
 
             seekBar.setProgress(0);
-            mPlayer.seekTo(0);
+            GlobalVariables.mPlayer.seekTo(0);
 
-            mPlayer.pause();// stop playing the music
+            GlobalVariables.mPlayer.pause();// stop playing the music
 
 
 
@@ -279,7 +323,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
                 try {
                    // if(mPlayer.isPlaying()==true)
                     {
-                        currentTime = mPlayer.getCurrentPosition();
+                        currentTime = GlobalVariables.mPlayer.getCurrentPosition();
                         seekBar.setProgress((int) currentTime);
 
                         String currentTimeString = calcTimeInMinsAndSecs(currentTime);
