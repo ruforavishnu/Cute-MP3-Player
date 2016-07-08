@@ -1,6 +1,7 @@
 package com.efgh.cutemp3player;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -24,8 +25,8 @@ import java.io.IOException;
 
 public class MetaData
 {
-    private String songTitle="No title found", albumName="No album found";
-    private Bitmap albumArtBitmap;//TODO: initialize albumArt to default res album art here itself
+    private String songTitle="Unknown artist", albumName="Audio";
+    private Bitmap albumArtBitmap;
 
     public String getMp3Path() {
         return mp3Path;
@@ -38,15 +39,15 @@ public class MetaData
     private String mp3Path;
 
     MediaMetadataRetriever metaRetreiver;
-    private Context mContext;
+
     public boolean AsyncTaskCompleted = false;
 
 
 
-    public MetaData(String valueInDataset, Context myContext)
+    public MetaData(String valueInDataset)
     {
         mp3Path = valueInDataset;
-        mContext = myContext;
+
 
         try
         {
@@ -57,10 +58,8 @@ public class MetaData
             if (art != null)
             {
                 albumArtBitmap = BitmapFactory.decodeByteArray(art, 0, art.length);
-            } else
-            {
-                albumArtBitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.cover);
             }
+
             Mp3File mp3file = null;
             mp3file = new Mp3File(mp3Path);
             if(mp3file.hasId3v1Tag())

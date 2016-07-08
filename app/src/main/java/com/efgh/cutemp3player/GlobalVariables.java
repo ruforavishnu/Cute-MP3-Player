@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 public class GlobalVariables
 {
     public static  final int MP3_PATH_KEY = 54;
+    public static int timesInvoked = 0;
     public static android.media.MediaPlayer mPlayer;
     public static class MediaPlayer
     {

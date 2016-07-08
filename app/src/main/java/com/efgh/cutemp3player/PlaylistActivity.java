@@ -51,14 +51,19 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
         playList = (RecyclerView)findViewById(R.id.recycler_view);
-
+        mLayoutManager = new CustomLayoutManager(this);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         playList.setHasFixedSize(true);
+        playList.setItemViewCacheSize(10);
+        playList.setDrawingCacheEnabled(true);
+        playList.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
+
+
         playList.setLayoutManager(mLayoutManager);
 
         loadPlaylist();

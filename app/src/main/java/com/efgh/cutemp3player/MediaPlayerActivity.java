@@ -173,7 +173,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
             GlobalVariables.mPlayer.start();
 
 
-            MetaData metaData = new MetaData(mp3Path,getApplicationContext());
+            MetaData metaData = new MetaData(mp3Path);
             Log.i("log", "metaData:" + metaData);
             Bitmap albumArt = metaData.getAlbumArtBitmap();
             albumArtImageView = (ImageView)findViewById(R.id.albumArtImageView);

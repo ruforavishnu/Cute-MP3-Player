@@ -5,8 +5,10 @@ package com.efgh.cutemp3player;
  */
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
@@ -25,6 +27,13 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     private ArrayList<String> mDataset;
     private Context mContext;
 
+    private List<String> pathList;
+    private List<Bitmap> imageList;
+    private List<String> songTitleList;
+    private List<String> albumNameList;
+
+    private Resources currentResources;
+
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -36,11 +45,24 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         public TextView txtFooter;
         public ImageView albumArtImageView;
 
-        public ViewHolder(View v) {
+        public ViewHolder(View v)
+        {
             super(v);
             txtHeader = (TextView) v.findViewById(R.id.songtitle);
             txtFooter = (TextView) v.findViewById(R.id.albumname);
             albumArtImageView = (ImageView)v.findViewById(R.id.thumbnail);
+
+            txtHeader.setText("Unknown artist");
+            txtFooter.setText("Audio");
+            albumArtImageView.setImageResource(R.drawable.cover);
+
+
+
+
+            currentResources = v.getResources();
+
+
+
         }
     }
 
@@ -62,6 +84,37 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     public RecycleViewAdapter(ArrayList<String> myDataset)
     {
         mDataset = myDataset;//here we have obtained the mp3FilesList -> array containing the all mp3 file paths
+        pathList = new ArrayList<String>();
+        imageList = new ArrayList<Bitmap>();
+        songTitleList = new ArrayList<String>();
+        albumNameList = new ArrayList<String>();
+
+        Log.i("logtest","path in mDataset:"+mDataset);
+
+            for(String path: mDataset)
+            {
+                MetaData metaData = new MetaData(path);
+                Bitmap albumArt = metaData.getAlbumArtBitmap();
+                if(albumArt==null)
+                {
+                    Bitmap defaultBitmap = BitmapFactory.decodeResource(currentResources,R.drawable.cover);
+                    imageList.add(defaultBitmap);
+                }
+                else
+                {
+                    imageList.add(albumArt);
+                }
+
+
+                songTitleList.add(metaData.getSongTitle());
+                albumNameList.add(metaData.getAlbumName());
+
+
+
+
+                pathList.add(path);
+            }
+
     }
 
     // Create new views (invoked by the layout manager)
@@ -72,6 +125,11 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_layout, parent, false);
         // set the view's size, margins, paddings and layout parameters
         ViewHolder vh = new ViewHolder(v);
+
+
+
+
+
         return vh;
     }
 
@@ -79,38 +137,29 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position)
     {
+        Log.i("logtest","onBindViewHolder invoked:"+GlobalVariables.timesInvoked++);
+
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
         try
         {
 
-            Context mContext = holder.txtHeader.getContext();
 
-            MetaData metaData = new MetaData(mDataset.get(position),mContext);
-
-            Bitmap albumArt = metaData.getAlbumArtBitmap();
-            if(albumArt == null)
+            Bitmap img = imageList.get(position);
+            if(img == null)
             {
-
                 holder.albumArtImageView.setImageResource(R.drawable.cover);
             }
             else
             {
-
-                holder.albumArtImageView.setImageBitmap(metaData.getAlbumArtBitmap());
+                holder.albumArtImageView.setImageBitmap(imageList.get(position));
             }
+            holder.txtHeader.setText(songTitleList.get(position));
+            holder.txtFooter.setText(albumNameList.get(position));
 
-
-            holder.txtHeader.setText( metaData.getSongTitle());
-            holder.txtFooter.setText(metaData.getAlbumName());
-            holder.txtHeader.setSelected(true);
-
-            MyTag pathTag = new MyTag(mDataset.get(position));
-          //  Log.i("logtest", "mDataset.get(position):" + mDataset.get(position));
+            MyTag pathTag = new MyTag(pathList.get(position));
             holder.txtHeader.setTag(pathTag);
-
-
 
 
         }
@@ -121,21 +170,12 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         }
 
 
-        String footerStr = "";
-        if(mDataset.get(position) == null)
-        {
-            footerStr="Not found";
-        }
-        else
-        {
-            footerStr = mDataset.get(position);
-        }
-
 
 
 
 
     }
+
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
