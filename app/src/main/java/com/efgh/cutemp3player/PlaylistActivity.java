@@ -86,7 +86,8 @@ public class PlaylistActivity extends AppCompatActivity {
             } else {
                 if(file.getName().endsWith(".mp3"))
                 {
-                    Log.i("logtest","filepath:"+file.getPath());
+                  //  Log.i("logtest","filepath:"+file.getPath());
+
                     inFiles.add(file);
                 }
             }
@@ -109,7 +110,7 @@ public class PlaylistActivity extends AppCompatActivity {
             for(File f: mp3FilesList)
             {
                 mp3FileNamesList.add(f.getPath().toString());
-                Log.i("logtest", "mp3 file found:" + f.getPath().toString());
+               // Log.i("logtest", "mp3 file found:" + f.getPath().toString());
 
             }
 
@@ -118,7 +119,7 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
 
-            mAdapter = new RecycleViewAdapter(mp3FileNamesList);
+            mAdapter = new RecycleViewAdapter(mp3FileNamesList,getApplicationContext());
 
             playList.setAdapter(mAdapter);
 
@@ -154,11 +155,6 @@ public class PlaylistActivity extends AppCompatActivity {
                                 {
 
                                     TextView headerTextView = (TextView)findViewById(childView.getId());
-
-
-
-
-
                                     Log.i("logtest", "tag:" + childView.getTag());
                                     MyTag tag = (MyTag)childView.getTag();
                                     Log.i("logtest", "tag:" + tag.getMp3FilePath());

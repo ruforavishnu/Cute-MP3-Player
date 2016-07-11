@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +22,10 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.ViewHolder>
@@ -81,7 +87,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public RecycleViewAdapter(ArrayList<String> myDataset)
+    public RecycleViewAdapter(ArrayList<String> myDataset, Context mContext)
     {
         mDataset = myDataset;//here we have obtained the mp3FilesList -> array containing the all mp3 file paths
         pathList = new ArrayList<String>();
@@ -89,31 +95,130 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         songTitleList = new ArrayList<String>();
         albumNameList = new ArrayList<String>();
 
-        Log.i("logtest","path in mDataset:"+mDataset);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+
+        String jsonString  = prefs.getString("jsonString",null);
+
+
+
+        if(jsonString == null)
+        {
+            Log.i("logtest","first time invoked, writing shared prefs");
+
+            JSONObject rootJSONObject = new JSONObject();
+            JSONArray jsonArray = new JSONArray();
+
 
             for(String path: mDataset)
             {
                 MetaData metaData = new MetaData(path);
-                Bitmap albumArt = metaData.getAlbumArtBitmap();
-                if(albumArt==null)
+
+
+                JSONObject jObj = new JSONObject();
+
+                try
                 {
-                    Bitmap defaultBitmap = BitmapFactory.decodeResource(currentResources,R.drawable.cover);
-                    imageList.add(defaultBitmap);
+                    jObj.put("path", path);
+                    jObj.put("songTitle",metaData.getSongTitle());
+                    jObj.put("albumName",metaData.getAlbumName());
+                    jsonArray.put(jObj);
+                    pathList.add(path);
+
                 }
-                else
+                catch (JSONException e)
                 {
-                    imageList.add(albumArt);
+                    Log.i("logtest","exception caught");
+                    e.printStackTrace();
                 }
 
 
-                songTitleList.add(metaData.getSongTitle());
-                albumNameList.add(metaData.getAlbumName());
 
 
 
 
-                pathList.add(path);
+
+
+
+
             }
+
+            try
+            {
+                rootJSONObject.put("jsonArray",jsonArray);
+
+                String sharedPrefString = rootJSONObject.toString();
+
+                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mContext);
+                SharedPreferences.Editor sPrefEditor = settings.edit();
+                sPrefEditor.putString("jsonString", sharedPrefString);
+                sPrefEditor.commit();
+
+
+            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+            finally
+            {
+                Log.i("logtest","sharedpref wrote successfully");
+
+            }
+        }
+        else
+        {
+            Log.i("logtest","NOT first time invoked, reading shared prefs");
+
+
+            try
+            {
+                JSONObject rootObj = new JSONObject(jsonString);
+                JSONArray jArray =  rootObj.getJSONArray("jsonArray");
+
+                for(int i = 0; i < jArray.length(); i++ )
+                {
+                    JSONObject obj = jArray.getJSONObject(i);
+                    String path = obj.getString("path");
+                    String songTitle = obj.getString("songTitle");
+                    String albumName = obj.getString("albumName");
+
+                    MetaData mData = new MetaData(path);
+                    Bitmap albumArt = mData.getAlbumArtBitmap();
+                    if(albumArt==null)
+                    {
+                        Bitmap defaultBitmap = BitmapFactory.decodeResource(currentResources,R.drawable.cover);
+                        imageList.add(defaultBitmap);
+                    }
+                    else
+                    {
+                        imageList.add(albumArt);
+                    }
+
+
+                    songTitleList.add(mData.getSongTitle());
+                    albumNameList.add(mData.getAlbumName());
+
+                }
+
+
+            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+            finally
+            {
+                Log.i("logtest","successfully read existing shared prefs");
+            }
+
+
+
+
+        }
+
+
+
 
     }
 
@@ -137,7 +242,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position)
     {
-        Log.i("logtest","onBindViewHolder invoked:"+GlobalVariables.timesInvoked++);
+
 
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
