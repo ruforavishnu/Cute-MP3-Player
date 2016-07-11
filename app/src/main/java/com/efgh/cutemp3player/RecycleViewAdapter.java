@@ -176,14 +176,29 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
                 JSONObject rootObj = new JSONObject(jsonString);
                 JSONArray jArray =  rootObj.getJSONArray("jsonArray");
 
+                Log.i("logtest","jArray created:"+jArray);
                 for(int i = 0; i < jArray.length(); i++ )
                 {
+
                     JSONObject obj = jArray.getJSONObject(i);
                     String path = obj.getString("path");
                     String songTitle = obj.getString("songTitle");
                     String albumName = obj.getString("albumName");
 
+                    if (songTitle.equals("Unknown artist"))
+                    {
+                        String s1 = path.substring(0,path.length()-4);
+                        int index  =  s1.lastIndexOf('/');
+                        songTitle = s1.substring(index+1);
+                        Log.i("logtest",songTitle);
+
+                    }
+
+
+                    //TODO: metadata creation is consuming a lot of time, have to find a workaround.
+                    Log.i("logtest","about to create a metadata object");
                     MetaData mData = new MetaData(path);
+                    Log.i("logtest","finished creating a metadata object");
                     Bitmap albumArt = mData.getAlbumArtBitmap();
                     if(albumArt==null)
                     {
@@ -196,8 +211,9 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
                     }
 
 
-                    songTitleList.add(mData.getSongTitle());
-                    albumNameList.add(mData.getAlbumName());
+                    songTitleList.add(songTitle);
+                    albumNameList.add(albumName);
+
 
                 }
 
