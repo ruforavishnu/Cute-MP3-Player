@@ -141,10 +141,13 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
+        Log.i("logtest","onBindViewHolder invoked");
+
         try
         {
 
 
+            Log.i("logtest","beginning try block");
             Bitmap img = imageList.get(position);
             if(img == null)
             {
@@ -157,15 +160,20 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
             holder.txtHeader.setText(songTitleList.get(position));
             holder.txtFooter.setText(albumNameList.get(position));
 
-            MyTag pathTag = new MyTag(pathList.get(position));
+            MyTag pathTag = new MyTag(mDataset.get(position));
+            Log.i("logtest","pathTag:"+pathTag);
             holder.txtHeader.setTag(pathTag);
 
 
         }
         catch (Exception e)
         {
+            Log.i("logtest","exception caught in onBindViewHolder, at class:"+e.getClass().getName()+",message:"+e.getMessage());
             e.getMessage();
             e.printStackTrace();
+        }
+        finally {
+            Log.i("logtest","FINALLY exited try block");
         }
 
 

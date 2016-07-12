@@ -147,7 +147,7 @@ public class PlaylistActivity extends AppCompatActivity {
                         for(int i = 0; i < group.getChildCount(); i++)
                         {
                             View childView = (View)group.getChildAt(i);
-                            Log.i("logtest","view name:"+childView.getClass().getName());
+                            Log.i("logtest","child view name:"+childView.getClass().getName());
 
                             if(childView.getClass().getName().endsWith("TextView"))
                             {
