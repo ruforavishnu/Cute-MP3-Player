@@ -54,14 +54,6 @@ public class MetaData
 
             MP3 mp3 = new MP3(mp3Path);
 
-
-            Log.i("logtest","start init");
-
-
-
-            // print out all the internal information about the .mp3 file
-
-
             List picturesList = new ArrayList();
             picturesList = mp3.getPictures();
             AttachedPicture pic = (AttachedPicture)picturesList.get(0);
@@ -74,13 +66,14 @@ public class MetaData
             songTitle = mp3.getTitle();
             albumName = mp3.getAlbum();
 
-            Log.i("logtest","completed init");
+
         }
-             catch (Exception e)
-             {
-                e.printStackTrace();
-            }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
+
+    }
 
     public String getSongTitle()
     {

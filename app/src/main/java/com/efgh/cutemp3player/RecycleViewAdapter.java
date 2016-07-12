@@ -95,144 +95,25 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         songTitleList = new ArrayList<String>();
         albumNameList = new ArrayList<String>();
 
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-
-        String jsonString  = prefs.getString("jsonString",null);
-
-
-
-        if(jsonString == null)
+        for(int i =0; i < mDataset.size();i++)
         {
-            Log.i("logtest","first time invoked, writing shared prefs");
 
-            JSONObject rootJSONObject = new JSONObject();
-            JSONArray jsonArray = new JSONArray();
+            MetaData mData = new MetaData(mDataset.get(i));
+            songTitleList.add(mData.getSongTitle());
+            albumNameList.add(mData.getAlbumName());;
 
 
-            for(String path: mDataset)
+            Bitmap albumArt = mData.getAlbumArtBitmap();
+            if(albumArt==null)
             {
-                MetaData metaData = new MetaData(path);
-
-
-                JSONObject jObj = new JSONObject();
-
-                try
-                {
-                    jObj.put("path", path);
-                    jObj.put("songTitle",metaData.getSongTitle());
-                    jObj.put("albumName",metaData.getAlbumName());
-                    jsonArray.put(jObj);
-                    pathList.add(path);
-
-                }
-                catch (JSONException e)
-                {
-                    Log.i("logtest","exception caught");
-                    e.printStackTrace();
-                }
-
-
-
-
-
-
-
-
-
-
+                Bitmap defaultBitmap = BitmapFactory.decodeResource(currentResources,R.drawable.cover);
+                imageList.add(defaultBitmap);
             }
-
-            try
+            else
             {
-                rootJSONObject.put("jsonArray",jsonArray);
-
-                String sharedPrefString = rootJSONObject.toString();
-
-                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mContext);
-                SharedPreferences.Editor sPrefEditor = settings.edit();
-                sPrefEditor.putString("jsonString", sharedPrefString);
-                sPrefEditor.commit();
-
-
-            }
-            catch (JSONException e)
-            {
-                e.printStackTrace();
-            }
-            finally
-            {
-                Log.i("logtest","sharedpref wrote successfully");
-
+                imageList.add(albumArt);
             }
         }
-        else
-        {
-            Log.i("logtest","NOT first time invoked, reading shared prefs");
-
-
-            try
-            {
-               /* JSONObject rootObj = new JSONObject(jsonString);
-                JSONArray jArray =  rootObj.getJSONArray("jsonArray");
-
-
-                for(int i = 0; i < jArray.length(); i++ )
-                {
-
-                    JSONObject obj = jArray.getJSONObject(i);
-                    String path = obj.getString("path");
-                    String songTitle = obj.getString("songTitle");
-                    String albumName = obj.getString("albumName");
-
-                    if (songTitle.equals("Unknown artist"))
-                    {
-                        String s1 = path.substring(0,path.length()-4);
-                        int index  =  s1.lastIndexOf('/');
-                        songTitle = s1.substring(index+1);
-                      //  Log.i("logtest",songTitle);
-
-                    }
-*/
-
-                //TODO: metadata creation is consuming a lot of time, have to find a workaround.
-                for(int i =0; i < mDataset.size();i++)
-                {
-
-                    MetaData mData = new MetaData(mDataset.get(i));
-                    songTitleList.add(mData.getSongTitle());
-                    albumNameList.add(mData.getAlbumName());;
-
-
-                    Bitmap albumArt = mData.getAlbumArtBitmap();
-                    if(albumArt==null)
-                    {
-                        Bitmap defaultBitmap = BitmapFactory.decodeResource(currentResources,R.drawable.cover);
-                        imageList.add(defaultBitmap);
-                    }
-                    else
-                    {
-                        imageList.add(albumArt);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            finally
-            {
-                Log.i("logtest","successfully read existing shared prefs");
-            }
-
-
-
-
-        }
-
-
-
-
     }
 
     // Create new views (invoked by the layout manager)
