@@ -1,21 +1,20 @@
 package com.efgh.cutemp3player;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
-import android.os.AsyncTask;
 import android.util.Log;
 
+import com.beaglebuddy.id3.pojo.AttachedPicture;
 import com.mpatric.mp3agic.ID3v1;
-import com.mpatric.mp3agic.ID3v2;
-import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.UnsupportedTagException;
 
-import java.io.IOException;
+import com.beaglebuddy.mp3.MP3;
+import com.beaglebuddy.id3.enums.PictureType;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Vishnu on 07-Jul-16.
@@ -52,39 +51,30 @@ public class MetaData
         try
         {
 
-            metaRetreiver = new MediaMetadataRetriever();
-            metaRetreiver.setDataSource(mp3Path);
-            byte[] art = metaRetreiver.getEmbeddedPicture();
+
+            MP3 mp3 = new MP3(mp3Path);
+
+
+            Log.i("logtest","start init");
+
+
+
+            // print out all the internal information about the .mp3 file
+
+
+            List picturesList = new ArrayList();
+            picturesList = mp3.getPictures();
+            AttachedPicture pic = (AttachedPicture)picturesList.get(0);
+
+            byte[] art = pic.getImage();
             if (art != null)
             {
                 albumArtBitmap = BitmapFactory.decodeByteArray(art, 0, art.length);
             }
+            songTitle = mp3.getTitle();
+            albumName = mp3.getAlbum();
 
-            Mp3File mp3file = null;
-            mp3file = new Mp3File(mp3Path);
-            if(mp3file.hasId3v1Tag())
-            {
-                ID3v1 id3v1Tag = mp3file.getId3v1Tag();
-                if(id3v1Tag!=null)
-                {
-
-                    songTitle = id3v1Tag.getTitle().length() > 0 ? id3v1Tag.getTitle() : "No title found";
-                    albumName = id3v1Tag.getAlbum().length() > 0 ? id3v1Tag.getAlbum() : "No album found";
-                }
-
-            }
-            if (mp3file.hasId3v2Tag())
-            {
-
-                ID3v1 id3v2Tag = mp3file.getId3v1Tag();
-                if(id3v2Tag!=null)
-                {
-                    songTitle = id3v2Tag.getTitle().length() > 0 ? id3v2Tag.getTitle() : "No title found";
-                    albumName = id3v2Tag.getAlbum().length() > 0 ? id3v2Tag.getAlbum() : "No album found";
-                }
-
-            }
-
+            Log.i("logtest","completed init");
         }
              catch (Exception e)
              {
@@ -109,7 +99,9 @@ public class MetaData
         this.albumName = albumName;
     }
 
-    public Bitmap getAlbumArtBitmap() {
+    public Bitmap getAlbumArtBitmap()
+    {
+
         return albumArtBitmap;
     }
 

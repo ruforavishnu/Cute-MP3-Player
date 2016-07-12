@@ -173,10 +173,10 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
 
             try
             {
-                JSONObject rootObj = new JSONObject(jsonString);
+               /* JSONObject rootObj = new JSONObject(jsonString);
                 JSONArray jArray =  rootObj.getJSONArray("jsonArray");
 
-                Log.i("logtest","jArray created:"+jArray);
+
                 for(int i = 0; i < jArray.length(); i++ )
                 {
 
@@ -190,15 +190,20 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
                         String s1 = path.substring(0,path.length()-4);
                         int index  =  s1.lastIndexOf('/');
                         songTitle = s1.substring(index+1);
-                        Log.i("logtest",songTitle);
+                      //  Log.i("logtest",songTitle);
 
                     }
+*/
+
+                //TODO: metadata creation is consuming a lot of time, have to find a workaround.
+                for(int i =0; i < mDataset.size();i++)
+                {
+
+                    MetaData mData = new MetaData(mDataset.get(i));
+                    songTitleList.add(mData.getSongTitle());
+                    albumNameList.add(mData.getAlbumName());;
 
 
-                    //TODO: metadata creation is consuming a lot of time, have to find a workaround.
-                    Log.i("logtest","about to create a metadata object");
-                    MetaData mData = new MetaData(path);
-                    Log.i("logtest","finished creating a metadata object");
                     Bitmap albumArt = mData.getAlbumArtBitmap();
                     if(albumArt==null)
                     {
@@ -209,17 +214,9 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
                     {
                         imageList.add(albumArt);
                     }
-
-
-                    songTitleList.add(songTitle);
-                    albumNameList.add(albumName);
-
-
                 }
-
-
             }
-            catch (JSONException e)
+            catch (Exception e)
             {
                 e.printStackTrace();
             }

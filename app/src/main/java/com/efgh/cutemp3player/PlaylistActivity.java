@@ -46,7 +46,8 @@ public class PlaylistActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -60,9 +61,9 @@ public class PlaylistActivity extends AppCompatActivity {
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         playList.setHasFixedSize(true);
-        playList.setItemViewCacheSize(10);
+        playList.setItemViewCacheSize(6);
         playList.setDrawingCacheEnabled(true);
-        playList.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        playList.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
 
 
         // use a linear layout manager
@@ -154,6 +155,7 @@ public class PlaylistActivity extends AppCompatActivity {
                                 if(childView.getTag()!=null)
                                 {
 
+                                    Log.i("logtest", "found textview with tag");
                                     TextView headerTextView = (TextView)findViewById(childView.getId());
                                     Log.i("logtest", "tag:" + childView.getTag());
                                     MyTag tag = (MyTag)childView.getTag();
@@ -161,12 +163,17 @@ public class PlaylistActivity extends AppCompatActivity {
                                     Uri songUri = Uri.parse(tag.getMp3FilePath());
 
                                     Intent playMusicIntent = new Intent(PlaylistActivity.this, MediaPlayerActivity.class);
-                                    playMusicIntent.putExtra("SongPath",songUri.toString());
+                                    playMusicIntent.putExtra("SongPath", songUri.toString());
                                     startActivity(playMusicIntent);
 
 
 
 
+
+                                }
+                                else
+                                {
+                                    Log.i("logtest","gettag returns null");
                                 }
 
 
