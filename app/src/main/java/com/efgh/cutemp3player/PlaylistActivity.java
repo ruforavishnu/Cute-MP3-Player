@@ -55,25 +55,7 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
 
-        playList = (RecyclerView)findViewById(R.id.recycler_view);
-        mLayoutManager = new CustomLayoutManager(this);
-
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        playList.setHasFixedSize(true);
-        playList.setItemViewCacheSize(6);
-        playList.setDrawingCacheEnabled(true);
-        playList.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_LOW);
-
-
-        // use a linear layout manager
-
-
-        playList.setLayoutManager(mLayoutManager);
-
-        loadPlaylist();
-
-        // specify an adapter (see also next example)
+       
 
 
     }
@@ -115,11 +97,6 @@ public class PlaylistActivity extends AppCompatActivity {
 
             }
 
-
-
-
-
-
             mAdapter = new RecycleViewAdapter(mp3FileNamesList,getApplicationContext());
 
             playList.setAdapter(mAdapter);
@@ -134,51 +111,62 @@ public class PlaylistActivity extends AppCompatActivity {
                         Log.i("logtest", "recyclerview was  touched at position:" + position);
                         Log.i("logtest","view name:"+view.getClass().getName());
 
-                        ViewGroup group = (ViewGroup) view;
-                        if(GlobalVariables.selectedSong != null)
-                        {
-                            GlobalVariables.selectedSong.setBackgroundResource(R.color.normal);
-                        }
 
-                        GlobalVariables.selectedSong = (ViewGroup) group;
-                        group.setBackgroundResource(R.color.colorPrimaryDark);
+                        //mAdapter.highlight(view, position);
 
 
-                        for(int i = 0; i < group.getChildCount(); i++)
-                        {
-                            View childView = (View)group.getChildAt(i);
-                            Log.i("logtest","child view name:"+childView.getClass().getName());
 
-                            if(childView.getClass().getName().endsWith("TextView"))
+
+
+                            ViewGroup group = (ViewGroup)view;
+                            //GlobalVariables.selectedSong = (ViewGroup) view;
+                           //Log.i("logtest", "GlobalVariables.selectedSong:" + GlobalVariables.selectedSong.getClass().getName());
+                            //GlobalVariables.selectedSong.setBackgroundResource(R.color.colorPrimaryDark);
+
+
+                            for(int i = 0; i < group.getChildCount(); i++)
                             {
+                                View childView = (View)group.getChildAt(i);
+                                Log.i("logtest","child view name:"+childView.getClass().getName());
 
-                                if(childView.getTag()!=null)
+                                if(childView.getClass().getName().endsWith("TextView"))
                                 {
 
-                                    Log.i("logtest", "found textview with tag");
-                                    TextView headerTextView = (TextView)findViewById(childView.getId());
-                                    Log.i("logtest", "tag:" + childView.getTag());
-                                    MyTag tag = (MyTag)childView.getTag();
-                                    Log.i("logtest", "tag:" + tag.getMp3FilePath());
-                                    Uri songUri = Uri.parse(tag.getMp3FilePath());
+                                    if(childView.getTag()!=null)
+                                    {
 
-                                    Intent playMusicIntent = new Intent(PlaylistActivity.this, MediaPlayerActivity.class);
-                                    playMusicIntent.putExtra("SongPath", songUri.toString());
-                                    startActivity(playMusicIntent);
-
+                                        Log.i("logtest", "found textview with tag");
+                                        TextView headerTextView = (TextView)findViewById(childView.getId());
+                                        Log.i("logtest", "tag:" + childView.getTag());
+                                        MyTag tag = (MyTag)childView.getTag();
+                                        Log.i("logtest", "tag:" + tag.getMp3FilePath());
+                                        Uri songUri = Uri.parse(tag.getMp3FilePath());
 
 
+                                        MyTag selectedSongTag = new MyTag(true);
+
+                                        childView.setTag(selectedSongTag);
+
+
+                                        Intent playMusicIntent = new Intent(PlaylistActivity.this, MediaPlayerActivity.class);
+                                        playMusicIntent.putExtra("SongPath", songUri.toString());
+                                        startActivity(playMusicIntent);
+
+
+
+
+
+                                    }
+                                    else
+                                    {
+                                        Log.i("logtest","gettag returns null");
+                                    }
 
 
                                 }
-                                else
-                                {
-                                    Log.i("logtest","gettag returns null");
-                                }
-
-
                             }
-                        }
+
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

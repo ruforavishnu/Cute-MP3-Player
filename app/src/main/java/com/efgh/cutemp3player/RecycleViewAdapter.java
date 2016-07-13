@@ -41,6 +41,11 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     private Resources currentResources;
 
 
+
+    public void highlight(View view, int position)
+    {
+
+    }
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
@@ -61,6 +66,8 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
             txtHeader.setText("Unknown artist");
             txtFooter.setText("Audio");
             albumArtImageView.setImageResource(R.drawable.cover);
+
+            v.setClickable(true);
 
 
 
@@ -127,10 +134,9 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
 
 
 
-
-
         return vh;
     }
+
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
@@ -141,13 +147,11 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        Log.i("logtest","onBindViewHolder invoked");
+
 
         try
         {
 
-
-            Log.i("logtest","beginning try block");
             Bitmap img = imageList.get(position);
             if(img == null)
             {
@@ -158,22 +162,24 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
                 holder.albumArtImageView.setImageBitmap(imageList.get(position));
             }
             holder.txtHeader.setText(songTitleList.get(position));
+            holder.txtFooter.setSelected(true);
+
             holder.txtFooter.setText(albumNameList.get(position));
 
             MyTag pathTag = new MyTag(mDataset.get(position));
-            Log.i("logtest","pathTag:"+pathTag);
+
             holder.txtHeader.setTag(pathTag);
+
+
+
 
 
         }
         catch (Exception e)
         {
-            Log.i("logtest","exception caught in onBindViewHolder, at class:"+e.getClass().getName()+",message:"+e.getMessage());
+
             e.getMessage();
             e.printStackTrace();
-        }
-        finally {
-            Log.i("logtest","FINALLY exited try block");
         }
 
 

@@ -7,6 +7,25 @@ package com.efgh.cutemp3player;
 public class MyTag
 {
     String  mp3FilePath;
+    Boolean isCurrentlyPlaying = false;
+    public MyTag()
+    {
+        mp3FilePath = null;
+        isCurrentlyPlaying = null;
+    }
+
+    public Boolean getIsCurrentlyPlaying()
+    {
+        return isCurrentlyPlaying;
+    }
+
+    public void setIsCurrentlyPlaying(Boolean status)
+    {
+        this.isCurrentlyPlaying = isCurrentlyPlaying;
+    }
+
+
+
 
     public String getMp3FilePath() {
         return mp3FilePath;
@@ -16,14 +35,15 @@ public class MyTag
         this.mp3FilePath = mp3FilePath;
     }
 
-    public MyTag()
-    {
-        mp3FilePath = null;
-    }
+
 
     public MyTag(String path)
     {
         mp3FilePath = path;
+    }
+    public MyTag(Boolean status)
+    {
+        isCurrentlyPlaying = status;
     }
 
 

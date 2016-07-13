@@ -66,16 +66,6 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
         mVisualizerView = (VisualizerView)findViewById(R.id.myvisualizerview);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
-
-
-
-
-
-
-
-
-
-
         playPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
