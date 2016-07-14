@@ -165,7 +165,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
 
             MetaData metaData = new MetaData(mp3Path);
             Log.i("log", "metaData:" + metaData);
-            Bitmap albumArt = metaData.getAlbumArtBitmap();
+            /*Bitmap albumArt = metaData.getAlbumArtBitmap();
             albumArtImageView = (ImageView)findViewById(R.id.albumArtImageView);
             if(albumArt == null)
             {
@@ -179,7 +179,7 @@ public class MediaPlayerActivity extends AppCompatActivity {
                 Log.i("log", "albumart exists, setting associated albumart:" + metaData);
                 albumArtImageView.setImageBitmap(metaData.getAlbumArtBitmap());
                 //holder.albumArtImageView.setImageBitmap(metaData.getAlbumArtBitmap());
-            }
+            }*/
 
             playPauseButton.setImageResource(R.drawable.pause);//since song is playing show pause button image
             myHandler.postDelayed(UpdateSongTime, 100);// use a Runnable Thread instance to run code every 100ms

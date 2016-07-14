@@ -98,7 +98,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     {
         mDataset = myDataset;//here we have obtained the mp3FilesList -> array containing the all mp3 file paths
         pathList = new ArrayList<String>();
-        imageList = new ArrayList<Bitmap>();
+     //   imageList = new ArrayList<byte[]>();
         songTitleList = new ArrayList<String>();
         albumNameList = new ArrayList<String>();
 
@@ -107,10 +107,15 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
 
             MetaData mData = new MetaData(mDataset.get(i));
             songTitleList.add(mData.getSongTitle());
-            albumNameList.add(mData.getAlbumName());;
+            albumNameList.add(mData.getAlbumName());
+            Log.i("logtest", "inside metadata class, songtitle:" + mData.getSongTitle());
+            Log.i("logtest","inside metadata class, albumNameList:"+mData.getAlbumName());
 
 
-            Bitmap albumArt = mData.getAlbumArtBitmap();
+
+
+            byte[] albumArt = mData.getAlbumArtBitmap();
+
             if(albumArt==null)
             {
                 Bitmap defaultBitmap = BitmapFactory.decodeResource(currentResources,R.drawable.cover);
@@ -118,8 +123,11 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
             }
             else
             {
-                imageList.add(albumArt);
+                Bitmap defaultBitmap = BitmapFactory.decodeByteArray(albumArt,0,albumArt.length);
+            //    imageList.add(albumArt);
             }
+
+            Log.i("logtest","inside metadata class, albumNameList:"+albumArt);
         }
     }
 

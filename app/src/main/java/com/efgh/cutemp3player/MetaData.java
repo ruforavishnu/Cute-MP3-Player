@@ -19,7 +19,7 @@ import java.util.List;
 public class MetaData
 {
     private String songTitle="Unknown artist", albumName="Audio";
-    private Bitmap albumArtBitmap;
+    private byte[] albumArtBitmap;
 
     public String getMp3Path() {
         return mp3Path;
@@ -52,11 +52,8 @@ public class MetaData
             picturesList = mp3.getPictures();
             AttachedPicture pic = (AttachedPicture)picturesList.get(0);
 
-            byte[] art = pic.getImage();
-            if (art != null)
-            {
-                albumArtBitmap = BitmapFactory.decodeByteArray(art, 0, art.length);
-            }
+            albumArtBitmap = pic.getImage();
+
             songTitle = mp3.getTitle();
             albumName = mp3.getAlbum();
 
@@ -86,13 +83,13 @@ public class MetaData
         this.albumName = albumName;
     }
 
-    public Bitmap getAlbumArtBitmap()
+    public byte[] getAlbumArtBitmap()
     {
 
         return albumArtBitmap;
     }
 
-    public void setAlbumArtBitmap(Bitmap albumArtBitmap) {
+    public void setAlbumArtBitmap(byte[] albumArtBitmap) {
         this.albumArtBitmap = albumArtBitmap;
     }
 }
