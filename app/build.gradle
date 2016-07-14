@@ -25,5 +25,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
-    compile 'com.github.mpatric:mp3agic:0.8.2'
+    compile 'com.github.bauerca:drag-sort-listview:0.6.1'
 }
+
+

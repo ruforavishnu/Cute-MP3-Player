@@ -1,41 +1,27 @@
 package com.efgh.cutemp3player;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.LabeledIntent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.media.MediaMetadataRetriever;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Spannable;
-import android.text.style.BackgroundColorSpan;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mpatric.mp3agic.ID3v2;
-import com.mpatric.mp3agic.Mp3File;
-
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+
 
 public class PlaylistActivity extends AppCompatActivity {
 
@@ -44,6 +30,93 @@ public class PlaylistActivity extends AppCompatActivity {
 
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    private ProgressDialog progressDialog;
+    TextView statusTextView;
+
+    private List<File> allFolders;
+
+
+
+
+    public class FolderSearchAsyncTask extends  AsyncTask<Void,Void,Void>
+    {
+
+
+
+        private List<File> getListFiles(File parentDir)
+        {
+
+            ArrayList<File> inFiles = new ArrayList<File>();
+            try {
+
+                File[] files = parentDir.listFiles();
+                for (File file : files) {
+                    if (file.isDirectory())
+                    {
+                       // Log.i("logtest","file:"+file);
+                        inFiles.addAll(getListFiles(file));
+                    }
+                    else
+                    {
+
+                        if(inFiles.contains(file.getParentFile())==false)
+                        {
+                            inFiles.add(file.getParentFile());
+                        }
+
+
+                    }
+                }
+
+            } catch (Exception e) {
+
+                Log.i("logtest","stacktrace:"+e.getStackTrace());
+                e.printStackTrace();
+            }
+
+
+            return inFiles;
+        }
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            Log.i("logtest", "inside pre execute");
+
+
+        }
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+
+
+
+                String filePath = "/storage/";
+                File file = new File(filePath);
+                //allFolders.addAll(getListFiles(file));
+                allFolders = getListFiles(file);
+                Log.i("logtest", " doInBackground allFolders size:" + allFolders.size());
+
+
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            super.onPostExecute(aVoid);
+
+
+            Log.i("logtest", " onPostExecute allFolders size:" + allFolders.size());
+
+        }
+
+
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -55,28 +128,19 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
 
-       
+        allFolders = new ArrayList<File>();
+
+        FolderSearchAsyncTask task = new FolderSearchAsyncTask();
+        task.execute();
+
+
+
+
+
 
 
     }
-    private List<File> getListFiles(File parentDir)
-    {
-        ArrayList<File> inFiles = new ArrayList<File>();
-        File[] files = parentDir.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                inFiles.addAll(getListFiles(file));
-            } else {
-                if(file.getName().endsWith(".mp3"))
-                {
-                  //  Log.i("logtest","filepath:"+file.getPath());
 
-                    inFiles.add(file);
-                }
-            }
-        }
-        return inFiles;
-    }
     public void loadPlaylist()
     {
         try {
@@ -87,7 +151,7 @@ public class PlaylistActivity extends AppCompatActivity {
             List<File> mp3FilesList = new ArrayList<File>();
             String filePath = Environment.getExternalStorageDirectory().getPath();
             File file = new File(filePath);
-            mp3FilesList = getListFiles(file);
+
 
             ArrayList<String> mp3FileNamesList = new ArrayList<String>();
             for(File f: mp3FilesList)

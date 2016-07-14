@@ -3,16 +3,10 @@ package com.efgh.cutemp3player;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
-import android.util.Log;
 
 import com.beaglebuddy.id3.pojo.AttachedPicture;
-import com.mpatric.mp3agic.ID3v1;
-import com.mpatric.mp3agic.Mp3File;
-
 import com.beaglebuddy.mp3.MP3;
-import com.beaglebuddy.id3.enums.PictureType;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
