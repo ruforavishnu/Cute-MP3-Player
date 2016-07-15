@@ -14,6 +14,10 @@ public class MyTag
         isCurrentlyPlaying = null;
     }
 
+    public MyTag(Boolean status)
+    {
+        isCurrentlyPlaying = status;
+    }
     public Boolean getIsCurrentlyPlaying()
     {
         return isCurrentlyPlaying;
@@ -41,10 +45,7 @@ public class MyTag
     {
         mp3FilePath = path;
     }
-    public MyTag(Boolean status)
-    {
-        isCurrentlyPlaying = status;
-    }
+
 
 
 }

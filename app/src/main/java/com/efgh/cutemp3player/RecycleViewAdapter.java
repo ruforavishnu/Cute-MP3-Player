@@ -30,7 +30,7 @@ import org.json.JSONObject;
 
 public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.ViewHolder>
 {
-    private ArrayList<String> mDataset;
+    private List<MP3MetaData> mDataset;
     private Context mContext;
 
     private List<String> pathList;
@@ -81,12 +81,12 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
 
     /////////////////////////////////////////////////////////////
 
-    public void add(int position, String item) {
+    public void add(int position, MP3MetaData item) {
         mDataset.add(position, item);
         notifyItemInserted(position);
     }
 
-    public void remove(String item)
+    public void remove(MP3MetaData item)
     {
         int position = mDataset.indexOf(item);
         mDataset.remove(position);
@@ -94,7 +94,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public RecycleViewAdapter(ArrayList<String> myDataset, Context mContext)
+    public RecycleViewAdapter(List<MP3MetaData> myDataset, Context mContext)
     {
         mDataset = myDataset;//here we have obtained the mp3FilesList -> array containing the all mp3 file paths
         pathList = new ArrayList<String>();
@@ -105,16 +105,17 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         for(int i =0; i < mDataset.size();i++)
         {
 
-            MetaData mData = new MetaData(mDataset.get(i));
-            songTitleList.add(mData.getSongTitle());
-            albumNameList.add(mData.getAlbumName());
-            Log.i("logtest", "inside metadata class, songtitle:" + mData.getSongTitle());
-            Log.i("logtest","inside metadata class, albumNameList:"+mData.getAlbumName());
+            MP3MetaData mp3MetaData = mDataset.get(i);
+
+            songTitleList.add(mp3MetaData.getSongTitle());
+            albumNameList.add(mp3MetaData.getAlbumTitle());
+            Log.i("logtest", "inside metadata class, songtitle:" + mp3MetaData.getSongTitle());
+            Log.i("logtest","inside metadata class, albumNameList:"+mp3MetaData.getAlbumTitle());
 
 
 
 
-            byte[] albumArt = mData.getAlbumArtBitmap();
+            byte[] albumArt = mp3MetaData.getAlbumArt();
 
             if(albumArt==null)
             {
@@ -124,10 +125,11 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
             else
             {
                 Bitmap defaultBitmap = BitmapFactory.decodeByteArray(albumArt,0,albumArt.length);
-            //    imageList.add(albumArt);
+                imageList.add(defaultBitmap);
             }
 
-            Log.i("logtest","inside metadata class, albumNameList:"+albumArt);
+
+
         }
     }
 
@@ -174,10 +176,10 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
 
             holder.txtFooter.setText(albumNameList.get(position));
 
-            MyTag pathTag = new MyTag(mDataset.get(position));
+            /*MyTag pathTag = new MyTag(mDataset.get(position));
 
             holder.txtHeader.setTag(pathTag);
-
+*/
 
 
 

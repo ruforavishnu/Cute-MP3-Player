@@ -3,9 +3,10 @@ package com.efgh.cutemp3player;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 public class PlaylistActivity extends AppCompatActivity {
@@ -42,6 +44,14 @@ public class PlaylistActivity extends AppCompatActivity {
 
     private DatabaseHandler dbHandler;
 
+    private long nanoStartTime;
+    private long nanaEndTime;
+
+    private List<File> musicFilesList;
+
+    private List<MP3MetaData> mp3MetaDataList;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -50,88 +60,135 @@ public class PlaylistActivity extends AppCompatActivity {
         setContentView(R.layout.activity_playlist);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        progressDialog = new ProgressDialog(getApplicationContext());
 
+
+        playList = (RecyclerView)findViewById(R.id.recycler_view);
 
 
         dbHandler = DatabaseHandler.getInstance(getApplicationContext());
-        int totalRows = dbHandler.getMp3MetadatasCount();
 
-        Log.i("logtest","totalRows:"+totalRows);
-        if(totalRows > 0)
+        MP3MetaData m = dbHandler.getMp3MetaData(1);
+        ;
+        /*RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
+        rescanTask.execute();*/
+
+        nanaEndTime = System.nanoTime();
+
+
+        long timeTaken = nanaEndTime - nanoStartTime;
+        long timeInSecs = timeTaken/1000000;
+
+
+
+
+/*
+        Log.i("logtest","first time invoked ,total time for execution :"+timeInSecs);
+
+        if(dbHandler.ifDbExists())
         {
+            nanoStartTime = System.nanoTime();
             //db exists, read from it
             Log.i("logtest","db exists, reading from db");
+            DatabaseHandler _dbInstance = DatabaseHandler.getInstance(getApplicationContext());
+            DBConversion dbConversion = new DBConversion(_dbInstance);
+            SQLiteDatabase db = _dbInstance.getReadableDatabase();
+            mp3MetaDataList = dbConversion.convertDbToArrayList(db);
+
+            renderRecyclerView();
+
+            nanaEndTime = System.nanoTime();
+            long timeTaken = nanaEndTime - nanoStartTime;
+            long timeInSecs = timeTaken/1000000;
+
+            Log.i("logtest","rescan and read,total time for execution :"+timeInSecs);
+
+
         }
         else
         {
-            Log.i("logtest","first time invoked, adding everything to db");
-            storeMediaInDb();
-        }
+            nanoStartTime = System.nanoTime();
+
+            Log.i("logtest", "first time invoked, adding everything to db");
+            RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
+            rescanTask.execute();
+
+            nanaEndTime = System.nanoTime();
+
+
+            long timeTaken = nanaEndTime - nanoStartTime;
+            long timeInSecs = timeTaken/1000000;
+
+
+
+
+
+            Log.i("logtest","first time invoked ,total time for execution :"+timeInSecs);
+
+        }*/
 
 
 
     }
-    private void storeMediaInDb()
+    public class RescanMusicAsyncTask extends AsyncTask<Void,Void,Void>
     {
-        List<File> mp3FilesList = new ArrayList<File>();
-        String rootFilePath = Environment.getExternalStorageDirectory().getParent();
-        File rootFile = new File(rootFilePath);
-        mp3FilesList = getListFiles(rootFile);
-
-
-
-        ArrayList<String> mp3FileNamesList = new ArrayList<String>();
-        for(File f: mp3FilesList)
+        @Override
+        protected void onPreExecute()
         {
-            mp3FileNamesList.add(f.getPath().toString());
+            super.onPreExecute();
+
 
         }
 
-        pathList = new ArrayList<String>();
-        imageList = new ArrayList<Bitmap>();
-        songTitleList = new ArrayList<String>();
-        albumNameList = new ArrayList<String>();
-
-        for(int i =0; i < mp3FileNamesList.size();i++)
+        @Override
+        protected Void doInBackground(Void... params)
         {
+            Log.i("logtest","inside doInBackground");
+            musicFilesList = RescanMusic.findAllMusicFiles();
+            Log.i("logtest", "inside doInBackground RescanMusic.findAllMusicFiles() completed");
+            MetaDataRetreiver mDataRetreiver = new MetaDataRetreiver();
+            Log.i("logtest","inside doInBackground mDataRetreiver instance  created");
+            mp3MetaDataList = mDataRetreiver.findMP3MetaDataList(musicFilesList,getResources());
+            Log.i("logtest","inside doInBackground findMP3MetaDataList,mp3MetaDataList size: "+mp3MetaDataList.size());
+            DatabaseHandler _dbInstance = DatabaseHandler.getInstance(getApplicationContext());
+            Log.i("logtest","inside doInBackground _dbInstance created ");
+            DBConversion dbConversion = new DBConversion(_dbInstance);
+            Log.i("logtest","inside doInBackground dbConversion instance created ");
+            dbConversion.convertArrayListToDB(mp3MetaDataList);
+            Log.i("logtest", "inside doInBackground converted arraylist to db");
 
-            MetaData mData = new MetaData(mp3FileNamesList.get(i));
-            String songTitle = mData.getSongTitle();
-            String albumTitle = mData.getAlbumName();
-            byte[] albumArt = mData.getAlbumArtBitmap();
-            int duration = 0;
-            String path = mp3FilesList.get(i).getPath();
-
-
-
-            dbHandler.addMp3MetadData(new MP3Metadata(songTitle,albumTitle,albumArt,duration,path));
+            return null;
         }
 
 
 
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            super.onPostExecute(aVoid);
 
 
+            renderRecyclerView();
 
+        }
     }
-    private List<File> getListFiles(File parentDir)
+
+
+    private void renderRecyclerView()
     {
-        ArrayList<File> inFiles = new ArrayList<File>();
-        File[] files = parentDir.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                inFiles.addAll(getListFiles(file));
-            } else {
-                if(file.getName().endsWith(".mp3"))
-                {
-                    Log.i("logtest","filepath:"+file.getPath());
-                    inFiles.add(file);
-                }
-            }
-        }
-        return inFiles;
+
+        mLayoutManager = new CustomLayoutManager(this);
+        playList.setLayoutManager(mLayoutManager);
+
+        mAdapter = new RecycleViewAdapter(mp3MetaDataList,getApplicationContext());
+
+        playList.setAdapter(mAdapter);
+        Log.i("logtest","playlist adapter set");
     }
 
-    public void loadPlaylist()
+
+
+    /*public void loadPlaylist()
     {
         try {
 
@@ -157,7 +214,7 @@ public class PlaylistActivity extends AppCompatActivity {
             playList.setAdapter(mAdapter);
             Log.i("logtest","playlist adapter set");
 
-           /* playList.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener()
+           *//* playList.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener()
             {
                 @Override
                 public void onItemClick(View view, int position)
@@ -229,7 +286,7 @@ public class PlaylistActivity extends AppCompatActivity {
                 }
             }));
 
-*/
+*//*
 
 
         }
@@ -239,7 +296,7 @@ public class PlaylistActivity extends AppCompatActivity {
         }
 
 
-    }
+    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)

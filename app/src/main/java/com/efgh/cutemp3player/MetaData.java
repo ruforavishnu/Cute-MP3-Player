@@ -1,12 +1,16 @@
 package com.efgh.cutemp3player;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.util.Log;
 
 import com.beaglebuddy.id3.pojo.AttachedPicture;
 import com.beaglebuddy.mp3.MP3;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,52 +22,99 @@ import java.util.List;
 
 public class MetaData
 {
-    private String songTitle="Unknown artist", albumName="Audio";
-    private byte[] albumArtBitmap;
+    private String songTitle="Unknown artist";
+    private String albumName="Audio";
+    private Bitmap albumArtBitmap = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.cover);
+    private long duration = 0;
+    private String pathToFile = "";
+
+
 
     public String getMp3Path() {
-        return mp3Path;
+        return pathToFile;
     }
 
     public void setMp3Path(String mp3Path) {
-        this.mp3Path = mp3Path;
+        this.pathToFile = mp3Path;
     }
 
-    private String mp3Path;
-
-    MediaMetadataRetriever metaRetreiver;
-
-    public boolean AsyncTaskCompleted = false;
 
 
 
-    public MetaData(String valueInDataset)
+    public MetaData()
     {
-        mp3Path = valueInDataset;
 
 
-        try
-        {
 
 
-            MP3 mp3 = new MP3(mp3Path);
+    }
+    public void initMetaData(String path)
+    {
+
+
+        try {
+            MP3 mp3 = new MP3(path);
+
+            songTitle = mp3.getTitle();//track title
+            albumName = mp3.getAlbum();//album title
 
             List picturesList = new ArrayList();
             picturesList = mp3.getPictures();
-            AttachedPicture pic = (AttachedPicture)picturesList.get(0);
+            byte[] art;
+            if(picturesList != null)
+            {
+                if(picturesList.size() > 0)
+                {
 
-            albumArtBitmap = pic.getImage();
+                    AttachedPicture pic = (AttachedPicture)picturesList.get(0);
+                    if(pic != null)
+                    {
 
-            songTitle = mp3.getTitle();
-            albumName = mp3.getAlbum();
+                        art = pic.getImage();
+                    }
+                    else
+                    {
+                        Bitmap defaultpic = BitmapFactory.decodeResource(Resources.getSystem(),R.drawable.cover);
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+                        defaultpic.compress(Bitmap.CompressFormat.JPEG,70,bos);
+                        art = bos.toByteArray();
+                        albumArtBitmap =  BitmapFactory.decodeByteArray(art, 0, art.length);//album art bmp
+                    }
+                }
+            }
+            else
+            {
+                Bitmap defaultpic = BitmapFactory.decodeResource(Resources.getSystem(),R.drawable.cover);
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+                defaultpic.compress(Bitmap.CompressFormat.JPEG,70,bos);
+                art = bos.toByteArray();
+                albumArtBitmap =  BitmapFactory.decodeByteArray(art, 0, art.length);//album art bmp
+
+            }
 
 
+            MediaMetadataRetriever metaRetreiver = new MediaMetadataRetriever();
+            metaRetreiver.setDataSource(path);
+            duration = Long.parseLong(metaRetreiver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));//track duration
+
+            pathToFile = path;//path to music file
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             e.printStackTrace();
         }
 
+
+    }
+
+    public MetaData findMetaData(String path)
+    {
+        MetaData mData = new MetaData();
+        mData.initMetaData(path);
+
+        return mData;
     }
 
     public String getSongTitle()
@@ -83,13 +134,33 @@ public class MetaData
         this.albumName = albumName;
     }
 
-    public byte[] getAlbumArtBitmap()
+    public Bitmap getAlbumArtBitmap()
     {
 
         return albumArtBitmap;
     }
 
-    public void setAlbumArtBitmap(byte[] albumArtBitmap) {
+    public void setAlbumArtBitmap(Bitmap albumArtBitmap) {
         this.albumArtBitmap = albumArtBitmap;
+    }
+
+    public long getDuration()
+    {
+        return duration;
+    }
+
+    public void setDuration(long duration)
+    {
+        this.duration = duration;
+    }
+
+    public String getPathToFile()
+    {
+        return pathToFile;
+    }
+
+    public void setPathToFile(String pathToFile)
+    {
+        this.pathToFile = pathToFile;
     }
 }

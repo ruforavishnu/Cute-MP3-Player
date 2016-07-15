@@ -2,11 +2,10 @@ package com.efgh.cutemp3player;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,9 +39,11 @@ public class DatabaseHandler extends SQLiteOpenHelper
         return _instance;
     }
 
+
+
     public DatabaseHandler(Context context)
     {
-        super(context,DATABASE_NAME,null,DATABASE_VERSION);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
@@ -61,12 +62,44 @@ public class DatabaseHandler extends SQLiteOpenHelper
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
 
-        db.execSQL("DROP TABLE IF EXISTS "+ TABLE_MP3METADATA);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MP3METADATA);
         onCreate(db);
 
     }
+    public void dropCreateAndInsert(SQLiteDatabase db , List<MP3MetaData> mDataList)
+    {
+        db.execSQL("DROP TABLE IF EXISTS "+ TABLE_MP3METADATA);
+        onCreate(db);
+        addMp3MetadDataList(mDataList);
 
-    public void addMp3MetadData(MP3Metadata mData)
+
+    }
+    public boolean ifTableExists(String tableName)
+    {
+        SQLiteDatabase currentDb;
+        if(ifDbExists())
+        {
+            currentDb = this.getReadableDatabase();
+            Cursor cursor = currentDb.rawQuery("select DISTINCT tbl_name from DATABASE_NAME where tbl_name = '"+TABLE_MP3METADATA+"'", null);
+            if(cursor != null)
+            {
+                if(cursor.getCount() > 0)
+                {
+                    cursor.close();
+                    return  true;
+                }
+                else
+                {
+                    cursor.close();
+                }
+            }
+
+        }
+        return false;
+
+    }
+
+    public void addMp3MetadData(MP3MetaData mData)
     {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -80,34 +113,75 @@ public class DatabaseHandler extends SQLiteOpenHelper
         db.insert(TABLE_MP3METADATA, null, values);
         db.close();
     }
+    public void addMp3MetadDataList(List<MP3MetaData> mDataList)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
 
-    public MP3Metadata getMp3MetaData(int id)
+        for(int i =0; i < mDataList.size(); i++)
+        {
+
+            MP3MetaData mp3MetaData = mDataList.get(i);
+
+
+
+            ContentValues values = new ContentValues();
+            values.put(KEY_SONGTITLE, mp3MetaData.getSongTitle());
+            values.put(KEY_ALBUMTITLE, mp3MetaData.getAlbumTitle());
+            values.put(KEY_ALBUMART,mp3MetaData.getAlbumArt());
+            values.put(KEY_DURATION,mp3MetaData.getDuration());
+            values.put(KEY_PATH,mp3MetaData.getPath());
+
+            db.insert(TABLE_MP3METADATA, null, values);
+        }
+
+        db.close();
+    }
+    public boolean ifDbExists()
+    {
+        boolean result = false;
+        int rowcount = getMp3MetadatasCount();
+
+        if(rowcount > 0)
+        {
+            result = true;
+        }
+
+        return  result;
+
+    }
+
+    public MP3MetaData getMp3MetaData(int id)
     {
         SQLiteDatabase db = this.getReadableDatabase();
+        Log.i("logtest","inside getMp3MetaData, db:"+db);
 
-        Cursor cursor = db.query(TABLE_MP3METADATA,new String[]
+        Cursor cursor = db.query(TABLE_MP3METADATA, new String[]
                 {
-                        KEY_ID,KEY_SONGTITLE,KEY_ALBUMTITLE,KEY_ALBUMART,KEY_DURATION,KEY_PATH}
-                , KEY_ID + "=?" , new String[] { String.valueOf(id) } , null,null,null,null);
+                        KEY_ID, KEY_SONGTITLE, KEY_ALBUMTITLE, KEY_ALBUMART, KEY_DURATION, KEY_PATH}
+                , KEY_ID + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
 
+        Log.i("logtest","inside getMp3MetaData, cursor:"+cursor);
         if(cursor!= null)
         {
             cursor.moveToFirst();
         }
 
-        MP3Metadata mData = new MP3Metadata(Integer.parseInt(cursor.getString(0)),
+
+
+        MP3MetaData mData = new MP3MetaData(Integer.parseInt(cursor.getString(0)),
                 cursor.getString(1),
                 cursor.getString(2),
                 cursor.getBlob(3),
                 Integer.parseInt(cursor.getString(4)),
                 cursor.getString(5));
 
+
         db.close();
         return  mData;
     }
-    public List<MP3Metadata> getAllMp3MetaData()
+    public List<MP3MetaData> getAllMp3MetaData()
     {
-        List<MP3Metadata> mDataList = new ArrayList<MP3Metadata>();
+        List<MP3MetaData> mDataList = new ArrayList<MP3MetaData>();
         String SELECT_QUERY = "SELECT * FROM "+ TABLE_MP3METADATA;
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -116,7 +190,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         {
             do
             {
-                MP3Metadata mData = new MP3Metadata();
+                MP3MetaData mData = new MP3MetaData();
                 mData.setId(Integer.parseInt(cursor.getString(0)));
                 mData.setSongTitle(cursor.getString(1));
                 mData.setAlbumTitle(cursor.getString(2));
@@ -146,7 +220,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         return  count;
     }
 
-    public int updateMp3Metadata(MP3Metadata mData)
+    public int updateMp3Metadata(MP3MetaData mData)
     {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -160,7 +234,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
     }
 
-    public void deleteMp3Metadata(MP3Metadata mData)
+
+    public void deleteMp3Metadata(MP3MetaData mData)
     {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_MP3METADATA, KEY_ID + " = ? ", new String[]{String.valueOf(mData.getId())});

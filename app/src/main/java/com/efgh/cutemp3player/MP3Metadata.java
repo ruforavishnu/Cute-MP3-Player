@@ -1,11 +1,9 @@
 package com.efgh.cutemp3player;
 
-import android.graphics.Bitmap;
-
 /**
  * Created by Vishnu on 14-Jul-16.
  */
-public class MP3Metadata
+public class MP3MetaData
 {
 
 
@@ -14,15 +12,15 @@ public class MP3Metadata
     String songTitle;
     String albumTitle;
     byte[] albumArt;
-    int duration;
+    long duration;
     String path;
 
-    public MP3Metadata()
+    public MP3MetaData()
     {
 
     }
 
-    public MP3Metadata(int myId, String mySongTitle, String myAlbumTitle, byte[] myAlbumArt, int myDuration, String myPath)
+    public MP3MetaData(int myId, String mySongTitle, String myAlbumTitle, byte[] myAlbumArt, int myDuration, String myPath)
     {
         this.id = myId;
         this.songTitle = mySongTitle;
@@ -32,7 +30,7 @@ public class MP3Metadata
         this.path = myPath;
     }
 
-    public MP3Metadata(String mySongTitle, String myAlbumTitle, byte[] myAlbumArt, int myDuration, String myPath)
+    public MP3MetaData(String mySongTitle, String myAlbumTitle, byte[] myAlbumArt, int myDuration, String myPath)
     {
         this.songTitle = mySongTitle;
         this.albumTitle = myAlbumTitle;
@@ -71,12 +69,12 @@ public class MP3Metadata
         this.albumTitle = albumTitle;
     }
 
-    public int getDuration()
+    public long getDuration()
     {
         return duration;
     }
 
-    public void setDuration(int duration)
+    public void setDuration(long duration)
     {
         this.duration = duration;
     }
