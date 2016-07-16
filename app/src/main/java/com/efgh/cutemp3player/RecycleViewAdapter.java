@@ -94,11 +94,11 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public RecycleViewAdapter(List<MP3MetaData> myDataset, Context mContext)
+    public RecycleViewAdapter(List<MP3MetaData> myDataset)
     {
         mDataset = myDataset;//here we have obtained the mp3FilesList -> array containing the all mp3 file paths
         pathList = new ArrayList<String>();
-     //   imageList = new ArrayList<byte[]>();
+        imageList = new ArrayList<Bitmap>();
         songTitleList = new ArrayList<String>();
         albumNameList = new ArrayList<String>();
 

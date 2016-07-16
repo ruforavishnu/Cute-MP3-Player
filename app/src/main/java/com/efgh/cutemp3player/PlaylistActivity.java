@@ -68,7 +68,21 @@ public class PlaylistActivity extends AppCompatActivity {
 
         dbHandler = DatabaseHandler.getInstance(getApplicationContext());
 
-        MP3MetaData m = dbHandler.getMp3MetaData(1);
+        ArrayList<MP3MetaData> mDataList = new ArrayList<MP3MetaData>();
+        for(int i = 1 ; i<=10; i++)
+        {
+            MP3MetaData m = dbHandler.getMp3MetaData(i);
+            mDataList.add(m);
+        }
+        mLayoutManager = new CustomLayoutManager(this);
+        playList.setLayoutManager(mLayoutManager);
+
+        mAdapter = new RecycleViewAdapter(mDataList);
+
+        playList.setAdapter(mAdapter);
+        Log.i("logtest","playlist adapter set");
+
+
         ;
         /*RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
         rescanTask.execute();*/
@@ -77,9 +91,11 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
         long timeTaken = nanaEndTime - nanoStartTime;
-        long timeInSecs = timeTaken/1000000;
 
+        long timeInSecs = TimeUnit.NANOSECONDS.toSeconds(timeTaken);
+        Log.i("logtest","time taken for exec:"+timeInSecs);
 
+;
 
 
 /*
@@ -180,7 +196,7 @@ public class PlaylistActivity extends AppCompatActivity {
         mLayoutManager = new CustomLayoutManager(this);
         playList.setLayoutManager(mLayoutManager);
 
-        mAdapter = new RecycleViewAdapter(mp3MetaDataList,getApplicationContext());
+        mAdapter = new RecycleViewAdapter(mp3MetaDataList);
 
         playList.setAdapter(mAdapter);
         Log.i("logtest","playlist adapter set");
