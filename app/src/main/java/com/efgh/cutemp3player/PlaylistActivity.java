@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,7 +28,7 @@ public class PlaylistActivity extends AppCompatActivity {
     private int REQ_CODE_PICK_SOUNDFILE = 11;
     private RecyclerView playList;
 
-    private RecyclerView.Adapter mAdapter;
+    private RecycleViewAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     private ProgressDialog progressDialog;
@@ -52,6 +53,11 @@ public class PlaylistActivity extends AppCompatActivity {
     private List<MP3MetaData> mp3MetaDataList;
 
 
+    public  Bitmap getDefaultBitmap()
+    {
+        Bitmap bmp = BitmapFactory.decodeResource(getResources(),R.drawable.cover);
+        return  bmp;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -68,13 +74,14 @@ public class PlaylistActivity extends AppCompatActivity {
 
         dbHandler = DatabaseHandler.getInstance(getApplicationContext());
 
-        int count = dbHandler.getMp3MetadatasCount();
+       /* lazy load*///////////////////////////////////////////////////
         ArrayList<MP3MetaData> mDataList = new ArrayList<MP3MetaData>();
-        for(int i = 1 ; i<=count; i++)
+        for(int i = 1 ; i<=12; i++)
         {
             MP3MetaData m = dbHandler.getMp3MetaData(i);
             mDataList.add(m);
         }
+        int count = dbHandler.getMp3MetadatasCount();
         Log.i("logtest","mDataList count:"+count);
         mLayoutManager = new CustomLayoutManager(this);
         playList.setLayoutManager(mLayoutManager);
@@ -82,8 +89,12 @@ public class PlaylistActivity extends AppCompatActivity {
         mAdapter = new RecycleViewAdapter(mDataList);
 
         playList.setAdapter(mAdapter);
-        Log.i("logtest","playlist adapter set");
+        //////////////////////////////////////////////////////////////
 
+       /* LazyLoadAsyncTask task = new LazyLoadAsyncTask();
+        task.execute(mAdapter);
+        Log.i("logtest","playlist adapter set");
+*/
 
         ;
         /*RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
@@ -97,55 +108,52 @@ public class PlaylistActivity extends AppCompatActivity {
         long timeInSecs = TimeUnit.NANOSECONDS.toSeconds(timeTaken);
         Log.i("logtest", "time taken for exec:" + timeInSecs);
 
-;
 
 
-/*
-        Log.i("logtest","first time invoked ,total time for execution :"+timeInSecs);
 
-        if(dbHandler.ifDbExists())
+
+
+    }
+
+    public class  LazyLoadAsyncTask extends AsyncTask
+    {
+        @Override
+        protected void onPreExecute()
         {
-            nanoStartTime = System.nanoTime();
-            //db exists, read from it
-            Log.i("logtest","db exists, reading from db");
-            DatabaseHandler _dbInstance = DatabaseHandler.getInstance(getApplicationContext());
-            DBConversion dbConversion = new DBConversion(_dbInstance);
-            SQLiteDatabase db = _dbInstance.getReadableDatabase();
-            mp3MetaDataList = dbConversion.convertDbToArrayList(db);
-
-            renderRecyclerView();
-
-            nanaEndTime = System.nanoTime();
-            long timeTaken = nanaEndTime - nanoStartTime;
-            long timeInSecs = timeTaken/1000000;
-
-            Log.i("logtest","rescan and read,total time for execution :"+timeInSecs);
-
-
+            super.onPreExecute();
+            int count = mAdapter.getItemCount();
+            Toast.makeText(getApplicationContext(),"starting lazy load,current child count:"+count,Toast.LENGTH_LONG).show();
         }
-        else
+
+
+
+
+        @Override
+        protected Object doInBackground(Object[] params)
         {
-            nanoStartTime = System.nanoTime();
-
-            Log.i("logtest", "first time invoked, adding everything to db");
-            RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
-            rescanTask.execute();
-
-            nanaEndTime = System.nanoTime();
+            int count = dbHandler.getMp3MetadatasCount();
 
 
-            long timeTaken = nanaEndTime - nanoStartTime;
-            long timeInSecs = timeTaken/1000000;
+            for(int i = 1 ; i<=count; i++)
+            {
+                MP3MetaData m = dbHandler.getMp3MetaData(i);
 
+                mAdapter.add(i,m);
+            }
+            mAdapter.notifyDataSetChanged();
 
 
 
+            return null;
+        }
 
-            Log.i("logtest","first time invoked ,total time for execution :"+timeInSecs);
-
-        }*/
-
-
+        @Override
+        protected void onPostExecute(Object o)
+        {
+            super.onPostExecute(o);
+            int count = mAdapter.getItemCount();
+            Toast.makeText(getApplicationContext(),"Lazy load completed, current child count:"+count,Toast.LENGTH_LONG).show();
+        }
 
     }
     public class RescanMusicAsyncTask extends AsyncTask<Void,Void,Void>

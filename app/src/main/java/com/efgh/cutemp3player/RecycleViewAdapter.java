@@ -38,7 +38,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     private List<String> songTitleList;
     private List<String> albumNameList;
 
-    private Resources currentResources;
+
 
 
 
@@ -68,12 +68,6 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
             albumArtImageView.setImageResource(R.drawable.cover);
 
             v.setClickable(true);
-
-
-
-
-            currentResources = v.getResources();
-
 
 
         }
@@ -117,16 +111,18 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
 
             byte[] albumArt = mp3MetaData.getAlbumArt();
 
-            if(albumArt==null)
-            {
-                Bitmap defaultBitmap = BitmapFactory.decodeResource(currentResources,R.drawable.cover);
-                imageList.add(defaultBitmap);
-            }
-            else
+            if(albumArt != null)
             {
                 Bitmap defaultBitmap = BitmapFactory.decodeByteArray(albumArt,0,albumArt.length);
                 imageList.add(defaultBitmap);
+
             }
+            else
+            {
+                Bitmap defaultBitmap = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.cover);
+                imageList.add(defaultBitmap);
+            }
+
 
 
 
