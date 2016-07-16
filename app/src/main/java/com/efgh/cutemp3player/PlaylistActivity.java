@@ -68,12 +68,14 @@ public class PlaylistActivity extends AppCompatActivity {
 
         dbHandler = DatabaseHandler.getInstance(getApplicationContext());
 
+        int count = dbHandler.getMp3MetadatasCount();
         ArrayList<MP3MetaData> mDataList = new ArrayList<MP3MetaData>();
-        for(int i = 1 ; i<=10; i++)
+        for(int i = 1 ; i<=count; i++)
         {
             MP3MetaData m = dbHandler.getMp3MetaData(i);
             mDataList.add(m);
         }
+        Log.i("logtest","mDataList count:"+count);
         mLayoutManager = new CustomLayoutManager(this);
         playList.setLayoutManager(mLayoutManager);
 
@@ -93,7 +95,7 @@ public class PlaylistActivity extends AppCompatActivity {
         long timeTaken = nanaEndTime - nanoStartTime;
 
         long timeInSecs = TimeUnit.NANOSECONDS.toSeconds(timeTaken);
-        Log.i("logtest","time taken for exec:"+timeInSecs);
+        Log.i("logtest", "time taken for exec:" + timeInSecs);
 
 ;
 
