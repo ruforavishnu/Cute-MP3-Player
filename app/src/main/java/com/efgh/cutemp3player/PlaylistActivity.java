@@ -1,68 +1,28 @@
 package com.efgh.cutemp3player;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import android.widget.AbsListView;
+import com.mobeta.android.dslv.DragSortController;
+import com.mobeta.android.dslv.DragSortListView;
 
-import com.mobeta.android.demodslv.CursorDSLV;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class PlaylistActivity extends AppCompatActivity {
 
     private int REQ_CODE_PICK_SOUNDFILE = 11;
-    private RecyclerView playList;
-
-    private RecycleViewAdapter mAdapter;
-    private LinearLayoutManager mLayoutManager;
-
-    private ProgressDialog progressDialog;
-    TextView statusTextView;
-
-    private List<File> allFolders;
-    private List<String> allFoldersPathAsString ;
-    private String[] allFoldersStringArray;
-
-    private List<String> pathList;
-    private List<Bitmap> imageList;
-    private List<String> songTitleList;
-    private List<String> albumNameList;
-
     private DatabaseHandler dbHandler;
 
-
-    private long nanoStartTime;
-    private long nanaEndTime;
-
-    private List<File> musicFilesList;
-
-    private List<MP3MetaData> mp3MetaDataList;
-
-
-    public  Bitmap getDefaultBitmap()
-    {
-        Bitmap bmp = BitmapFactory.decodeResource(getResources(),R.drawable.cover);
-        return  bmp;
-    }
+    private DragSortListView listView;
+    private ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -71,19 +31,62 @@ public class PlaylistActivity extends AppCompatActivity {
         setContentView(R.layout.activity_playlist);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        listView = (DragSortListView) findViewById(R.id.dslv);
+        String[] names = getResources().getStringArray(R.array.jazz_artist_names);
+        ArrayList<String> list = new ArrayList<String>(Arrays.asList(names));
+
+        adapter = new ArrayAdapter<String>(this,R.layout.recyclerview_layout);
+        listView.setAdapter(adapter);
+        listView.setDropListener(onDrop);
+        listView.setRemoveListener(onRemove);
+
+        DragSortController controller = new DragSortController(listView);
+        controller.setDragHandleId(R.id.dslvButton);
+        controller.setRemoveEnabled(false);
+        controller.setSortEnabled(false);
+        controller.setDragInitMode(1);
+
+        listView.setFloatViewManager(controller);
+        listView.setOnTouchListener(controller);
+        listView.setDragEnabled(true);
+
+
+
+
+
+
+
+        /*
 
         dbHandler = DatabaseHandler.getInstance(getBaseContext());
         dbHandler.openConnection();
 
-
-
-        Intent i = new Intent(this, CursorDSLV.class);
-        startActivity(i);
+        Intent dslvIntent = new Intent(this, CursorDSLV.class);
+        startActivity(dslvIntent);*/
 
     }
+    private DragSortListView.DropListener onDrop = new DragSortListView.DropListener()
+    {
+        @Override
+        public void drop(int from, int to)
+        {
+            if (from != to)
+            {
+                String item = adapter.getItem(from);
+                adapter.remove(item);
+                adapter.insert(item, to);
+            }
+        }
+    };
 
-
-
+    private DragSortListView.RemoveListener onRemove = new DragSortListView.RemoveListener()
+    {
+        @Override
+        public void remove(int which)
+        {
+            adapter.remove(adapter.getItem(which));
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
