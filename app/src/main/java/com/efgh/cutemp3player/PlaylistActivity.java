@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -21,6 +22,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import android.widget.AbsListView;
+
+import com.mobeta.android.demodslv.CursorDSLV;
 
 
 public class PlaylistActivity extends AppCompatActivity {
@@ -29,7 +33,7 @@ public class PlaylistActivity extends AppCompatActivity {
     private RecyclerView playList;
 
     private RecycleViewAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+    private LinearLayoutManager mLayoutManager;
 
     private ProgressDialog progressDialog;
     TextView statusTextView;
@@ -44,6 +48,7 @@ public class PlaylistActivity extends AppCompatActivity {
     private List<String> albumNameList;
 
     private DatabaseHandler dbHandler;
+
 
     private long nanoStartTime;
     private long nanaEndTime;
@@ -66,7 +71,18 @@ public class PlaylistActivity extends AppCompatActivity {
         setContentView(R.layout.activity_playlist);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        progressDialog = new ProgressDialog(getApplicationContext());
+
+        dbHandler = DatabaseHandler.getInstance(getBaseContext());
+        dbHandler.openConnection();
+
+
+
+        Intent i = new Intent(this, CursorDSLV.class);
+        startActivity(i);
+
+
+
+       /* progressDialog = new ProgressDialog(getApplicationContext());
 
 
         playList = (RecyclerView)findViewById(R.id.recycler_view);
@@ -74,7 +90,7 @@ public class PlaylistActivity extends AppCompatActivity {
 
         dbHandler = DatabaseHandler.getInstance(getApplicationContext());
 
-       /* lazy load*///////////////////////////////////////////////////
+       *//* lazy load*//*//////////////////////////////////////////////////
         ArrayList<MP3MetaData> mDataList = new ArrayList<MP3MetaData>();
         for(int i = 1 ; i<=12; i++)
         {
@@ -83,22 +99,30 @@ public class PlaylistActivity extends AppCompatActivity {
         }
         int count = dbHandler.getMp3MetadatasCount();
         Log.i("logtest","mDataList count:"+count);
-        mLayoutManager = new CustomLayoutManager(this);
+        mLayoutManager = new LinearLayoutManager(this);
         playList.setLayoutManager(mLayoutManager);
 
         mAdapter = new RecycleViewAdapter(mDataList);
 
         playList.setAdapter(mAdapter);
+        playList.setOnScrollListener(new EndlessRecyclerOnScrollListener(mLayoutManager)
+        {
+            @Override
+            public void onLoadMore(int current_page)
+            {
+                customLoadMoreItemsToAdapter(current_page);
+            }
+        });
         //////////////////////////////////////////////////////////////
 
-       /* LazyLoadAsyncTask task = new LazyLoadAsyncTask();
+       *//* LazyLoadAsyncTask task = new LazyLoadAsyncTask();
         task.execute(mAdapter);
         Log.i("logtest","playlist adapter set");
-*/
+*//*
 
         ;
-        /*RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
-        rescanTask.execute();*/
+        *//*RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
+        rescanTask.execute();*//*
 
         nanaEndTime = System.nanoTime();
 
@@ -107,10 +131,26 @@ public class PlaylistActivity extends AppCompatActivity {
 
         long timeInSecs = TimeUnit.NANOSECONDS.toSeconds(timeTaken);
         Log.i("logtest", "time taken for exec:" + timeInSecs);
+*/
 
 
 
 
+
+    }
+
+    public void customLoadMoreItemsToAdapter(int page)
+    {
+        int startOffset = page * 6;
+        int threshold = (page* 6) + 6;
+
+        for(int i = startOffset ; i<=threshold; i++)
+        {
+            MP3MetaData m = dbHandler.getMp3MetaData(i);
+
+            mAdapter.add(i,m);
+        }
+        mAdapter.notifyDataSetChanged();
 
 
     }

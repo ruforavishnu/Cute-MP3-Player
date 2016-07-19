@@ -3,6 +3,7 @@ package com.efgh.cutemp3player;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -28,7 +29,10 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
 
 
+
+
     private static DatabaseHandler _instance;
+    private SQLiteDatabase db;
 
     public static synchronized DatabaseHandler getInstance(Context context)
     {
@@ -37,6 +41,14 @@ public class DatabaseHandler extends SQLiteOpenHelper
             _instance = new DatabaseHandler(context.getApplicationContext());
         }
         return _instance;
+    }
+
+    public DatabaseHandler openConnection() throws SQLException
+    {
+        if (db == null) {
+            db = _instance.getWritableDatabase();
+        }
+        return this;
     }
 
 
