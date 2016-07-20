@@ -31,7 +31,7 @@ public class DBConversion
         _instance.dropCreateAndInsert(db, mp3MetaDataList);
 
     }
-    public List<MP3MetaData>  convertDbToArrayList(SQLiteDatabase db)
+    public List<MP3MetaData>  convertDbToArrayList()
     {
         List<File> pathList = new ArrayList<File>();
         List<MP3MetaData> mp3MetaDataList = new ArrayList<MP3MetaData>();

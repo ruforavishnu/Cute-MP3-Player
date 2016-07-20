@@ -103,9 +103,6 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
 
             songTitleList.add(mp3MetaData.getSongTitle());
             albumNameList.add(mp3MetaData.getAlbumTitle());
-            Log.i("logtest", "inside metadata class, songtitle:" + mp3MetaData.getSongTitle());
-            Log.i("logtest","inside metadata class, albumNameList:"+mp3MetaData.getAlbumTitle());
-
 
 
 

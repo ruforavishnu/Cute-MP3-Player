@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -39,7 +40,7 @@ public class PlaylistActivity extends AppCompatActivity {
     private List<String> songTitleList;
     private List<String> albumNameList;
 
-    private DatabaseHandler dbHandler;
+
 
     private long nanoStartTime;
     private long nanaEndTime;
@@ -52,6 +53,7 @@ public class PlaylistActivity extends AppCompatActivity {
     RescanMusicDialogFragment rescanDialog;
 
     private List<MP3MetaData> mp3MetaDataList;
+    private DatabaseHandler dbHandler;
 
     private ProgressDialogTextChangedListener mProgressDialogTextChangedListener;
 
@@ -73,9 +75,96 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
 
-        rescanMusic();
+        dbHandler = DatabaseHandler.getInstance(this);
+
+        playList = (RecyclerView)findViewById(R.id.recycler_view);
+
+        boolean dbContainsData = false;
+        if(dbHandler.ifDbExists())
+        {
+            if(dbHandler.listAllTables().length() > 0) //tables exist
+            {
+                if(dbHandler.getMp3MetadatasCount() > 0)
+                {
+                    dbContainsData = true;
+
+                    ReadFromDbAsyncTask readDbTask = new ReadFromDbAsyncTask();
+                    readDbTask.execute();
 
 
+
+                }
+            }
+
+        }
+
+        if(dbContainsData == false)
+        {
+            GlobalFunctions.log("db does not exist, scanning all music files");
+
+            rescanMusic();//TODO: add quick scan by reading metadataretrievers content provider and do full scan only when told to
+        }
+
+
+
+    }
+
+    public class ReadFromDbAsyncTask extends AsyncTask<Void,Void,Void>
+    {
+
+        private List<MP3MetaData> listFromDb;
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            GlobalFunctions.log("start reading from db");
+
+
+        }
+        @Override
+        protected Void doInBackground(Void... params)
+        {
+            GlobalFunctions.log("doInBackground.. reading from db");
+            DBConversion dbConverter = new DBConversion(dbHandler);
+
+            listFromDb = new ArrayList<MP3MetaData>();
+            listFromDb = dbConverter.convertDbToArrayList();
+
+
+
+            return null;
+        }
+
+
+
+        @Override
+        protected void onPostExecute(Void aVoid)
+        {
+            super.onPostExecute(aVoid);
+
+            GlobalFunctions.log("onPostExecute.. completed reading from db");
+            renderRecyclerView(listFromDb);
+
+
+        }
+    }
+    private void renderRecyclerView(List<MP3MetaData> mList)
+    {
+        try
+        {
+            GlobalFunctions.log("rendering begins,list recieved by renderRecycler view has size:"+mList.size());
+            mLayoutManager = new CustomLayoutManager(this);
+            playList.setLayoutManager(mLayoutManager);
+
+            mAdapter = new RecycleViewAdapter(mList);
+
+            playList.setAdapter(mAdapter);
+            Log.i("logtest", "playlist adapter set");
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            GlobalFunctions.log("exccptino inside renderRecyclerView msg:"+e.getMessage());
+        }
     }
 
 
@@ -86,7 +175,7 @@ public class PlaylistActivity extends AppCompatActivity {
     {
 
 
-        Log.i("logtest","starting to scan for music");
+        Log.i("logtest", "starting to scan for music");
 
 
         RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
@@ -151,19 +240,34 @@ public class PlaylistActivity extends AppCompatActivity {
 
                 RescanMusic musicScanner = new RescanMusic(this);
                 musicFilesList = musicScanner.findAllMusicFiles();
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        progressDialog.setMessage("Retrieving metadata...");
+                    }
+                });
 
-               /* GlobalFunctions.log("music files located, starting metadata retrievel...,total files:"+musicFilesList.size());
+                GlobalFunctions.log("music files located, starting metadata retrievel...,total files:"+musicFilesList.size());
                 MetaDataRetreiver metaDataRetreiver = new MetaDataRetreiver();
                 mp3MetaDataList = metaDataRetreiver.findMP3MetaDataList(musicFilesList,getResources());
 
-                GlobalFunctions.log("meta data retrieved, saving to db...");*/
+                GlobalFunctions.log("meta data retrieved, saving to db...");
 
 
-                /*
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        progressDialog.setMessage("Saving to database...");
+                    }
+                });
                 DatabaseHandler handler = DatabaseHandler.getInstance(PlaylistActivity.this);
                 DBConversion writeToDb = new DBConversion(handler);
                 writeToDb.convertArrayListToDB(mp3MetaDataList);
-*/
+                GlobalFunctions.log("finished scanning");
 
 
 
@@ -200,13 +304,17 @@ public class PlaylistActivity extends AppCompatActivity {
                 public void run()
                 {
                     progressDialog.dismiss();
+
+                    GlobalFunctions.log("finished scanning, showing playlist");
+
+                    renderRecyclerView(mp3MetaDataList);
                 }
             });
 
 
 
 
-            //renderRecyclerView(mp3MetaDataList);
+
 
         }
 
@@ -227,17 +335,7 @@ public class PlaylistActivity extends AppCompatActivity {
     }
 
 
-    private void renderRecyclerView(List<MP3MetaData> mList)
-    {
 
-        mLayoutManager = new CustomLayoutManager(this);
-        playList.setLayoutManager(mLayoutManager);
-
-        mAdapter = new RecycleViewAdapter(mList);
-
-        playList.setAdapter(mAdapter);
-        Log.i("logtest","playlist adapter set");
-    }
 
 
 
