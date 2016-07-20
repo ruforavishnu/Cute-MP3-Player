@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -56,6 +58,7 @@ public class PlaylistActivity extends AppCompatActivity {
     private List<MP3MetaData> mp3MetaDataList;
 
     RescanMusicDialogFragment rescanDialog;
+
 
 
     @Override
@@ -110,7 +113,7 @@ public class PlaylistActivity extends AppCompatActivity {
 
             progressDialog = new ProgressDialog(PlaylistActivity.this);
             progressDialog.setTitle("Rescan library");
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+
             progressDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Run in background", new DialogInterface.OnClickListener()
             {
                 @Override
@@ -132,6 +135,8 @@ public class PlaylistActivity extends AppCompatActivity {
             progressDialog.setMessage("Starting scan...");
             progressDialog.show();
 
+            musicFilesList = new ArrayList<File>();
+
 
 
 
@@ -141,23 +146,31 @@ public class PlaylistActivity extends AppCompatActivity {
 
         }
 
+
         @Override
         protected Void doInBackground(Void... params)
         {
 
-            progressDialog.setMessage("inside doInBackground ");
-            /*
-            progressWindow.setMessage("finding music files");
-            musicFilesList = RescanMusic.findAllMusicFiles();
-            progressWindow.setMessage("extracting metadata");
-            MetaDataRetreiver mDataRetreiver = new MetaDataRetreiver();
-            mp3MetaDataList = mDataRetreiver.findMP3MetaDataList(musicFilesList,getResources());
+            try
+            {
 
-            DatabaseHandler _dbInstance = DatabaseHandler.getInstance(getApplicationContext());
-            DBConversion dbConversion = new DBConversion(_dbInstance);
-            progressWindow.setMessage("saving metadata");
 
-            dbConversion.convertArrayListToDB(mp3MetaDataList);*/
+                RescanMusic musicScanner = new RescanMusic(progressDialog);
+                musicFilesList = musicScanner.findAllMusicFiles();
+
+
+
+
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                Log.i("logtest","exc message:"+e.getMessage());
+                int i = 0;
+
+            }
+
+
 
 
             return null;
@@ -169,6 +182,10 @@ public class PlaylistActivity extends AppCompatActivity {
         protected void onPostExecute(Void aVoid)
         {
             super.onPostExecute(aVoid);
+         //   progressDialog.dismiss();
+            Log.i("logtest", "onPostExecute");
+            progressDialog.dismiss();
+
            /* progressWindow.setMessage("Completed");
             alertDialog.dismiss();
 

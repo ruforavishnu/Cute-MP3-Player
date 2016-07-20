@@ -16,18 +16,6 @@ public class GlobalVariables
     public static android.media.MediaPlayer mPlayer;
     public static ViewGroup selectedSong = null;
     public static List<File> allDirs;
-    public static class MediaPlayer
-    {
-        public static String PLAYING = "playing";
-        public static String PAUSED = "paused";
-        public static String STOPPED = "stopped";
-        public static String INACTIVE = "inactive";
 
-        public static class LastPressedButton
-        {
-            public static int id = -54321;
 
-        }
-
-    }
 }

@@ -1,5 +1,6 @@
 package com.efgh.cutemp3player;
 
+import android.app.ProgressDialog;
 import android.os.Environment;
 import android.util.Log;
 
@@ -12,11 +13,13 @@ import java.util.List;
  */
 public class RescanMusic
 {
-    public RescanMusic()
-    {
+    private ProgressDialog progressDialog;
 
+    public RescanMusic(ProgressDialog mProgressDialog)
+    {
+        this.progressDialog = mProgressDialog;
     }
-    private static List<File> getListFiles(File parentDir)
+    private  List<File> getListFiles(File parentDir)
     {
 
         boolean exceptionCaught = false;
@@ -25,6 +28,7 @@ public class RescanMusic
         {
             inFiles = new ArrayList<File>();
             File[] files = parentDir.listFiles();
+
 
             if(files != null)
             {
@@ -35,10 +39,12 @@ public class RescanMusic
                     {
                         if (file.isDirectory())
                         {
+
                             inFiles.addAll(getListFiles(file));
                         }
                         else
                         {
+                            progressDialog.setMessage(file.getParent().toString());
                             if(file.getName().endsWith(".mp3"))
                             {
 
@@ -58,14 +64,19 @@ public class RescanMusic
 
         return inFiles;
     }
-    public static List<File> findAllMusicFiles()
+
+    public  List<File> findAllMusicFiles()
     {
 
+        Log.i("logtest","starting music scan");
         String rootLocation = Environment.getExternalStorageDirectory().getParent();
         File rootDirectory = new File(rootLocation);
+        GlobalVariables.scanRunning = true;
         List<File> allMusicFiles = getListFiles(rootDirectory);
+        GlobalVariables.scanRunning = false;
 
 
+        Log.i("logtest","completing music scan");
         return allMusicFiles;
 
     }
