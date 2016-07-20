@@ -5,8 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "mp3MetaDataManager";
-    private static final String TABLE_MP3METADATA = "mp3MetaData";
+    public  static final String TABLE_MP3METADATA = "mp3MetaData";
 
     private static final String KEY_ID = "id";
     private static final String KEY_SONGTITLE = "songtitle";
@@ -27,7 +29,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
     private static final String KEY_DURATION = "duration";
     private static final String KEY_PATH = "path";
 
-
+    private static final int MODE_READABLE = 1;
+    private static final int MODE_WRITABLE = 2;
 
 
 
@@ -41,6 +44,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
             _instance = new DatabaseHandler(context.getApplicationContext());
         }
         return _instance;
+
     }
 
     public DatabaseHandler openConnection() throws SQLException
@@ -86,28 +90,90 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
 
     }
+
+    public SQLiteDatabase getDb(int mode)
+    {
+        if(mode == MODE_READABLE)
+        {
+            return this.getReadableDatabase();
+        }
+        else if(mode == MODE_WRITABLE)
+        {
+            return this.getWritableDatabase();
+        }
+        return null;
+
+    }
+
+    public boolean ifDbExists()
+    {
+
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        if(db == null)
+        {
+            return  false;
+        }
+        return true;
+
+
+
+    }
+    public String listAllTables()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+        String names = "";
+        if(c.moveToFirst())
+        {
+            while(!c.moveToLast())
+            {
+                names += c.getString(0);
+
+            }
+            if(names.length() == 0)
+            {
+                names = "null";
+            }
+
+
+        }
+        else
+        {
+            names = "null";
+        }
+        return names;
+    }
+
+
     public boolean ifTableExists(String tableName)
     {
-        SQLiteDatabase currentDb;
-        if(ifDbExists())
+        SQLiteDatabase currentDb = this.getReadableDatabase();
+        boolean result = false;
+        if(currentDb != null)
         {
-            currentDb = this.getReadableDatabase();
-            Cursor cursor = currentDb.rawQuery("select DISTINCT tbl_name from DATABASE_NAME where tbl_name = '"+TABLE_MP3METADATA+"'", null);
+
+            Cursor cursor = currentDb.rawQuery("select DISTINCT tbl_name from DATABASE_NAME where tbl_name = '"+tableName+"'", null);
             if(cursor != null)
             {
                 if(cursor.getCount() > 0)
                 {
                     cursor.close();
-                    return  true;
+                    result = true;
                 }
                 else
                 {
                     cursor.close();
+                    result = false;
                 }
+            }
+            else
+            {
+                result = false;
             }
 
         }
-        return false;
+        return result;
 
     }
 
@@ -148,19 +214,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         db.close();
     }
-    public boolean ifDbExists()
-    {
-        boolean result = false;
-        int rowcount = getMp3MetadatasCount();
 
-        if(rowcount > 0)
-        {
-            result = true;
-        }
-
-        return  result;
-
-    }
 
     public MP3MetaData getMp3MetaData(int id)
     {
