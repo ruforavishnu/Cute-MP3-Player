@@ -71,8 +71,10 @@ public class MetaDataRetreiver
                 Log.i("logtest", "inside metadataretreiver , metaDataList size:" + metaDataList.size());
                 return metaDataList;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 e.printStackTrace();
+                GlobalFunctions.log("exc caught in "+this.getClass().getName()+",msg:"+e.getMessage());
             }
         }
         return null;

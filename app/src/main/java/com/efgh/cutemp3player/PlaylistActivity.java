@@ -1,23 +1,15 @@
 package com.efgh.cutemp3player;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,7 +17,6 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 
 public class PlaylistActivity extends AppCompatActivity {
@@ -36,7 +27,7 @@ public class PlaylistActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    private ProgressDialog progressDialog;
+
     TextView statusTextView;
 
     private List<File> allFolders;
@@ -54,11 +45,22 @@ public class PlaylistActivity extends AppCompatActivity {
     private long nanaEndTime;
 
     private List<File> musicFilesList;
+    private ProgressDialog progressDialog;
 
-    private List<MP3MetaData> mp3MetaDataList;
+
 
     RescanMusicDialogFragment rescanDialog;
 
+    private List<MP3MetaData> mp3MetaDataList;
+
+    private ProgressDialogTextChangedListener mProgressDialogTextChangedListener;
+
+
+
+    public void setOnProgressDialogTextChangedListener(ProgressDialogTextChangedListener listener)
+    {
+        this.mProgressDialogTextChangedListener = listener;
+    }
 
 
     @Override
@@ -67,37 +69,31 @@ public class PlaylistActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist);
 
-
-
-
+        this.mProgressDialogTextChangedListener = null;
 
 
 
         rescanMusic();
 
 
-
-
-
-
-
-
     }
+
+
+
+
+
     public void rescanMusic()
     {
+
+
         Log.i("logtest","starting to scan for music");
+
+
         RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
         rescanTask.execute();
     }
-    public class RescanMusicAsyncTask extends AsyncTask<Void,Void,Void>
+    public class RescanMusicAsyncTask extends AsyncTask<Void,Void,Void> implements ProgressDialogTextChangedListener
     {
-
-        private AlertDialog.Builder rescanDialog;
-        private AlertDialog mAlertDialog;
-        private ProgressDialog progressDialog;
-
-
-
 
 
 
@@ -105,11 +101,6 @@ public class PlaylistActivity extends AppCompatActivity {
         protected void onPreExecute()
         {
             super.onPreExecute();
-            /*rescanDialog = new AlertDialog.Builder(PlaylistActivity.this);
-            rescanDialog.setTitle("Rescan library");
-            rescanDialog.setMessage("path");
-            mAlertDialog = rescanDialog.create();
-            mAlertDialog.show();*/
 
             progressDialog = new ProgressDialog(PlaylistActivity.this);
             progressDialog.setTitle("Rescan library");
@@ -127,10 +118,13 @@ public class PlaylistActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which)
                 {
-                    Log.i("logtest","cancel clicked");
+                    Log.i("logtest", "cancel clicked");
 
                 }
             });
+
+
+
 
             progressDialog.setMessage("Starting scan...");
             progressDialog.show();
@@ -155,8 +149,23 @@ public class PlaylistActivity extends AppCompatActivity {
             {
 
 
-                RescanMusic musicScanner = new RescanMusic(progressDialog);
+                RescanMusic musicScanner = new RescanMusic(this);
                 musicFilesList = musicScanner.findAllMusicFiles();
+
+               /* GlobalFunctions.log("music files located, starting metadata retrievel...,total files:"+musicFilesList.size());
+                MetaDataRetreiver metaDataRetreiver = new MetaDataRetreiver();
+                mp3MetaDataList = metaDataRetreiver.findMP3MetaDataList(musicFilesList,getResources());
+
+                GlobalFunctions.log("meta data retrieved, saving to db...");*/
+
+
+                /*
+                DatabaseHandler handler = DatabaseHandler.getInstance(PlaylistActivity.this);
+                DBConversion writeToDb = new DBConversion(handler);
+                writeToDb.convertArrayListToDB(mp3MetaDataList);
+*/
+
+
 
 
 
@@ -182,27 +191,49 @@ public class PlaylistActivity extends AppCompatActivity {
         protected void onPostExecute(Void aVoid)
         {
             super.onPostExecute(aVoid);
-         //   progressDialog.dismiss();
+            //   progressDialog.dismiss();
+
             Log.i("logtest", "onPostExecute");
-            progressDialog.dismiss();
+            runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    progressDialog.dismiss();
+                }
+            });
 
-           /* progressWindow.setMessage("Completed");
-            alertDialog.dismiss();
 
 
-            renderRecyclerView();*/
+
+            //renderRecyclerView(mp3MetaDataList);
+
+        }
+
+        @Override
+        public void updateProgressDialogText(final String msg)
+        {
+            //GlobalFunctions.log("listener caught");
+            runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    progressDialog.setMessage(msg);
+                }
+            });
 
         }
     }
 
 
-    private void renderRecyclerView()
+    private void renderRecyclerView(List<MP3MetaData> mList)
     {
 
         mLayoutManager = new CustomLayoutManager(this);
         playList.setLayoutManager(mLayoutManager);
 
-        mAdapter = new RecycleViewAdapter(mp3MetaDataList);
+        mAdapter = new RecycleViewAdapter(mList);
 
         playList.setAdapter(mAdapter);
         Log.i("logtest","playlist adapter set");

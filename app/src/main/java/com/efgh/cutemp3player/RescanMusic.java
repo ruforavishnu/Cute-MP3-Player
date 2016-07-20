@@ -13,11 +13,11 @@ import java.util.List;
  */
 public class RescanMusic
 {
-    private ProgressDialog progressDialog;
+    ProgressDialogTextChangedListener progressDialogTextChangedListener;
 
-    public RescanMusic(ProgressDialog mProgressDialog)
+    public RescanMusic(ProgressDialogTextChangedListener listener )
     {
-        this.progressDialog = mProgressDialog;
+        this.progressDialogTextChangedListener = listener;
     }
     private  List<File> getListFiles(File parentDir)
     {
@@ -44,7 +44,10 @@ public class RescanMusic
                         }
                         else
                         {
-                            progressDialog.setMessage(file.getParent().toString());
+
+
+
+                            this.progressDialogTextChangedListener.updateProgressDialogText(file.getParent());
                             if(file.getName().endsWith(".mp3"))
                             {
 
@@ -60,6 +63,7 @@ public class RescanMusic
         {
             exceptionCaught = true;
             e.printStackTrace();
+            GlobalFunctions.log("exception caught in rescan music,msg"+e.getClass().getName());
         }
 
         return inFiles;
@@ -71,12 +75,12 @@ public class RescanMusic
         Log.i("logtest","starting music scan");
         String rootLocation = Environment.getExternalStorageDirectory().getParent();
         File rootDirectory = new File(rootLocation);
-        GlobalVariables.scanRunning = true;
+
         List<File> allMusicFiles = getListFiles(rootDirectory);
-        GlobalVariables.scanRunning = false;
 
 
-        Log.i("logtest","completing music scan");
+
+        Log.i("logtest","completing music scan, files found:"+allMusicFiles.size());
         return allMusicFiles;
 
     }

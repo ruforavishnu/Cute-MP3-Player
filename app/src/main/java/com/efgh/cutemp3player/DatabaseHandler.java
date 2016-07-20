@@ -49,7 +49,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
     public DatabaseHandler openConnection() throws SQLException
     {
-        if (db == null) {
+        if (db == null)
+        {
             db = _instance.getWritableDatabase();
         }
         return this;
@@ -86,7 +87,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     {
         db.execSQL("DROP TABLE IF EXISTS "+ TABLE_MP3METADATA);
         onCreate(db);
-        addMp3MetadDataList(mDataList);
+        addMp3MetadDataList(db,mDataList);
 
 
     }
@@ -191,9 +192,9 @@ public class DatabaseHandler extends SQLiteOpenHelper
         db.insert(TABLE_MP3METADATA, null, values);
         db.close();
     }
-    public void addMp3MetadDataList(List<MP3MetaData> mDataList)
+    public void addMp3MetadDataList(SQLiteDatabase mDb ,List<MP3MetaData> mDataList)
     {
-        SQLiteDatabase db = this.getWritableDatabase();
+
 
         for(int i =0; i < mDataList.size(); i++)
         {
@@ -209,10 +210,10 @@ public class DatabaseHandler extends SQLiteOpenHelper
             values.put(KEY_DURATION,mp3MetaData.getDuration());
             values.put(KEY_PATH,mp3MetaData.getPath());
 
-            db.insert(TABLE_MP3METADATA, null, values);
+            mDb.insert(TABLE_MP3METADATA, null, values);
         }
 
-        db.close();
+        mDb.close();
     }
 
 

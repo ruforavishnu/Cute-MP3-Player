@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MediaPlayerActivity extends AppCompatActivity {
 
-    private String mPlayerState = GlobalVariables.MediaPlayer.STOPPED;
+
     private String lastPressed = "";
 
     private Handler myHandler = new Handler();

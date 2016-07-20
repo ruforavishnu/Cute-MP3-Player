@@ -1,5 +1,6 @@
 package com.efgh.cutemp3player;
 
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.io.File;
@@ -19,23 +20,16 @@ public class DBConversion
     }
     public void convertArrayListToDB(List<MP3MetaData> mp3MetaDataList)
     {
-        if(_instance.ifDbExists() && _instance.ifTableExists(TABLE_MP3METADATA))
-        {
-            SQLiteDatabase db = _instance.getWritableDatabase();
-            for(int i = 0 ; i < mp3MetaDataList.size(); i++)
-            {
-                MP3MetaData mp3MetaData = mp3MetaDataList.get(i);
-                String songTitle = mp3MetaData.getSongTitle();
-                String albumTitle = mp3MetaData.getAlbumTitle();
-                byte[] artInBytes = mp3MetaData.getAlbumArt();
-                long songDuration = mp3MetaData.getDuration();
-                String pathToSong = mp3MetaData.getPath();
+        writeDbWithArrayList(mp3MetaDataList);
 
+    }
+    public void writeDbWithArrayList(List<MP3MetaData> mp3MetaDataList)
+    {
+        _instance.openConnection();
+        SQLiteDatabase db = _instance.getWritableDatabase();
 
+        _instance.dropCreateAndInsert(db, mp3MetaDataList);
 
-            }
-            _instance.dropCreateAndInsert(db,mp3MetaDataList);
-        }
     }
     public List<MP3MetaData>  convertDbToArrayList(SQLiteDatabase db)
     {
