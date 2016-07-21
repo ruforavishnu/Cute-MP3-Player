@@ -7,9 +7,11 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Debug;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +65,39 @@ public class DatabaseHandler extends SQLiteOpenHelper
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    public void convertArrayListToDB(ArrayList<MP3MetaData> mp3MetaDataList,Context context)
+    {
+
+        //Debug.waitForDebugger();
+
+        DatabaseHandler instance = DatabaseHandler.getInstance(context);
+
+
+        if(instance.ifDbExists() )
+        {
+            SQLiteDatabase db = instance.getWritableDatabase();
+
+            instance.dropCreateAndInsert(db,mp3MetaDataList);
+        }
+
+    }
+
+    public ArrayList<MP3MetaData>  convertDbToArrayList()
+    {
+        ArrayList<File> pathList = new ArrayList<File>();
+        ArrayList<MP3MetaData> mp3MetaDataList = new ArrayList<MP3MetaData>();
+        int totalRows = _instance.getMp3MetadatasCount();
+        if(totalRows > 0)
+        {
+            mp3MetaDataList = _instance.getAllMp3MetaData();
+
+
+            return  mp3MetaDataList;
+        }
+
+        return null;
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db)
     {
@@ -83,7 +118,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         onCreate(db);
 
     }
-    public void dropCreateAndInsert(SQLiteDatabase db , List<MP3MetaData> mDataList)
+    public void dropCreateAndInsert(SQLiteDatabase db , ArrayList<MP3MetaData> mDataList)
     {
         db.execSQL("DROP TABLE IF EXISTS "+ TABLE_MP3METADATA);
         onCreate(db);
@@ -122,6 +157,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     }
     public String listAllTables()
     {
+
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
         String names = "";
@@ -131,18 +167,20 @@ public class DatabaseHandler extends SQLiteOpenHelper
             {
                 names += c.getString(0);
 
+
             }
             if(names.length() == 0)
             {
-                names = "null";
+                names = null;
             }
 
 
         }
         else
         {
-            names = "null";
+            names = null;
         }
+        GlobalFunctions.log("DatabaseHandler class, listAllTables method returns names:"+names);
         return names;
     }
 
@@ -192,11 +230,12 @@ public class DatabaseHandler extends SQLiteOpenHelper
         db.insert(TABLE_MP3METADATA, null, values);
         db.close();
     }
-    public void addMp3MetadDataList(SQLiteDatabase mDb ,List<MP3MetaData> mDataList)
+    public void addMp3MetadDataList(SQLiteDatabase mDb ,ArrayList<MP3MetaData> mDataList)
     {
 
 
-        for(int i =0; i < mDataList.size(); i++)
+        int i = 0;
+        for( i =0; i < mDataList.size(); i++)
         {
 
             MP3MetaData mp3MetaData = mDataList.get(i);
@@ -212,6 +251,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
             mDb.insert(TABLE_MP3METADATA, null, values);
         }
+      //  Debug.waitForDebugger();
 
         mDb.close();
     }
@@ -246,9 +286,9 @@ public class DatabaseHandler extends SQLiteOpenHelper
         db.close();
         return  mData;
     }
-    public List<MP3MetaData> getAllMp3MetaData()
+    public ArrayList<MP3MetaData> getAllMp3MetaData()
     {
-        List<MP3MetaData> mDataList = new ArrayList<MP3MetaData>();
+        ArrayList<MP3MetaData> mDataList = new ArrayList<MP3MetaData>();
         String SELECT_QUERY = "SELECT * FROM "+ TABLE_MP3METADATA;
         SQLiteDatabase db = this.getWritableDatabase();
 

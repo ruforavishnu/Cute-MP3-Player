@@ -12,6 +12,7 @@ import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,30 +30,10 @@ public class PlaylistActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
 
 
-    TextView statusTextView;
 
-    private List<File> allFolders;
-    private List<String> allFoldersPathAsString ;
-    private String[] allFoldersStringArray;
-
-    private List<String> pathList;
-    private List<Bitmap> imageList;
-    private List<String> songTitleList;
-    private List<String> albumNameList;
-
-
-
-    private long nanoStartTime;
-    private long nanaEndTime;
-
-    private List<File> musicFilesList;
     private ProgressDialog progressDialog;
 
 
-
-    RescanMusicDialogFragment rescanDialog;
-
-    private List<MP3MetaData> mp3MetaDataList;
     private DatabaseHandler dbHandler;
 
     private ProgressDialogTextChangedListener mProgressDialogTextChangedListener;
@@ -79,32 +60,70 @@ public class PlaylistActivity extends AppCompatActivity {
 
         playList = (RecyclerView)findViewById(R.id.recycler_view);
 
+        ArrayList<MP3MetaData> list = new ArrayList<MP3MetaData>();
+
+        list = dbHandler.convertDbToArrayList();
+
+        if(list!= null)
+        {
+            GlobalFunctions.log("list size:"+list.size());
+            GlobalFunctions.log("db contains data,reading from db");
+
+            ReadFromDbAsyncTask readDbTask = new ReadFromDbAsyncTask();
+            readDbTask.execute();
+
+        }
+        else
+        {
+            GlobalFunctions.log("db does not exist, scanning all music files");
+
+            RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
+            rescanTask.execute();
+
+        }
+
+/*
+
+
+
+
         boolean dbContainsData = false;
         if(dbHandler.ifDbExists())
         {
-            if(dbHandler.listAllTables().length() > 0) //tables exist
+            GlobalFunctions.log("db does exist");
+            String listedTables = dbHandler.listAllTables();
+            GlobalFunctions.log("listed tables:"+listedTables);
+            if(listedTables!= null) //tables exist
             {
+                GlobalFunctions.log("db has more than 0 tables");
                 if(dbHandler.getMp3MetadatasCount() > 0)
                 {
+                    GlobalFunctions.log("get metadata count > 0");
                     dbContainsData = true;
-
-                    ReadFromDbAsyncTask readDbTask = new ReadFromDbAsyncTask();
-                    readDbTask.execute();
-
-
 
                 }
             }
 
         }
 
-        if(dbContainsData == false)
+        if(dbContainsData==true)
+        {
+            GlobalFunctions.log("db contains data,reading from db");
+
+            ReadFromDbAsyncTask readDbTask = new ReadFromDbAsyncTask();
+            readDbTask.execute();
+        }
+        else
         {
             GlobalFunctions.log("db does not exist, scanning all music files");
 
-            rescanMusic();//TODO: add quick scan by reading metadataretrievers content provider and do full scan only when told to
+            RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
+            rescanTask.execute();
+
+            //TODO: add quick scan by reading metadataretrievers content provider and do full scan only when told to
         }
 
+*/
 
 
     }
@@ -112,23 +131,24 @@ public class PlaylistActivity extends AppCompatActivity {
     public class ReadFromDbAsyncTask extends AsyncTask<Void,Void,Void>
     {
 
-        private List<MP3MetaData> listFromDb;
+        private ArrayList<MP3MetaData> listFromDb;
         @Override
         protected void onPreExecute()
         {
             super.onPreExecute();
-            GlobalFunctions.log("start reading from db");
+            GlobalFunctions.log("ReadFromDbAsyncTask onPreExecute");
 
 
         }
         @Override
         protected Void doInBackground(Void... params)
         {
-            GlobalFunctions.log("doInBackground.. reading from db");
-            DBConversion dbConverter = new DBConversion(dbHandler);
+            GlobalFunctions.log("ReadFromDbAsyncTask.. doInBackground");
+
 
             listFromDb = new ArrayList<MP3MetaData>();
-            listFromDb = dbConverter.convertDbToArrayList();
+            listFromDb = dbHandler.convertDbToArrayList();
+            GlobalFunctions.log("listFromDb:"+listFromDb);
 
 
 
@@ -142,28 +162,35 @@ public class PlaylistActivity extends AppCompatActivity {
         {
             super.onPostExecute(aVoid);
 
-            GlobalFunctions.log("onPostExecute.. completed reading from db");
+            GlobalFunctions.log(" ReadFromDbAsyncTask onPostExecute,listFromDb:"+listFromDb);
+
             renderRecyclerView(listFromDb);
 
 
         }
     }
-    private void renderRecyclerView(List<MP3MetaData> mList)
+    private void renderRecyclerView(ArrayList<MP3MetaData> mList)
     {
         try
         {
-            GlobalFunctions.log("rendering begins,list recieved by renderRecycler view has size:"+mList.size());
+            GlobalFunctions.log("renderRecyclerView ,list recieved by renderRecycler view has size,mList"+mList);
             mLayoutManager = new CustomLayoutManager(this);
             playList.setLayoutManager(mLayoutManager);
+
+
+
+
+
 
             mAdapter = new RecycleViewAdapter(mList);
 
             playList.setAdapter(mAdapter);
             Log.i("logtest", "playlist adapter set");
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             e.printStackTrace();
-            GlobalFunctions.log("exccptino inside renderRecyclerView msg:"+e.getMessage());
+            GlobalFunctions.log("exccptino inside renderRecyclerView msg:"+e.getMessage()+"\nstacktrace"+e.getStackTrace().toString());
         }
     }
 
@@ -171,25 +198,19 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
 
-    public void rescanMusic()
-    {
 
-
-        Log.i("logtest", "starting to scan for music");
-
-
-        RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
-        rescanTask.execute();
-    }
     public class RescanMusicAsyncTask extends AsyncTask<Void,Void,Void> implements ProgressDialogTextChangedListener
     {
 
+        ArrayList<File> musicFilesList;
+        ArrayList<MP3MetaData> listOfAllMetaData;
 
 
         @Override
         protected void onPreExecute()
         {
             super.onPreExecute();
+            GlobalFunctions.log("RescanMusicAsyncTask onPreExecute");
 
             progressDialog = new ProgressDialog(PlaylistActivity.this);
             progressDialog.setTitle("Rescan library");
@@ -200,6 +221,7 @@ public class PlaylistActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which)
                 {
                     Log.i("logtest", "run in backgrnd clicked");
+                    progressDialog.hide();//TODO might need to be changed
                 }
             });
             progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener()
@@ -219,23 +241,22 @@ public class PlaylistActivity extends AppCompatActivity {
             progressDialog.show();
 
             musicFilesList = new ArrayList<File>();
-
-
-
-
-
-
+            listOfAllMetaData = new ArrayList<MP3MetaData>();
 
 
         }
+
 
 
         @Override
         protected Void doInBackground(Void... params)
         {
 
+
+
             try
             {
+                GlobalFunctions.log("RescanMusicAsyncTask doInBackground");
 
 
                 RescanMusic musicScanner = new RescanMusic(this);
@@ -251,9 +272,9 @@ public class PlaylistActivity extends AppCompatActivity {
 
                 GlobalFunctions.log("music files located, starting metadata retrievel...,total files:"+musicFilesList.size());
                 MetaDataRetreiver metaDataRetreiver = new MetaDataRetreiver();
-                mp3MetaDataList = metaDataRetreiver.findMP3MetaDataList(musicFilesList,getResources());
+                listOfAllMetaData = metaDataRetreiver.findMP3MetaDataList(musicFilesList,getResources());
 
-                GlobalFunctions.log("meta data retrieved, saving to db...");
+                GlobalFunctions.log("meta data retrieved, mp3MetaDataList:"+listOfAllMetaData);
 
 
                 runOnUiThread(new Runnable()
@@ -264,11 +285,12 @@ public class PlaylistActivity extends AppCompatActivity {
                         progressDialog.setMessage("Saving to database...");
                     }
                 });
-                DatabaseHandler handler = DatabaseHandler.getInstance(PlaylistActivity.this);
-                DBConversion writeToDb = new DBConversion(handler);
-                writeToDb.convertArrayListToDB(mp3MetaDataList);
-                GlobalFunctions.log("finished scanning");
 
+
+                GlobalFunctions.log("RescanMusicAsyncTask  doInBackground, about to convert arraylist to db, listOfAllMetaData size:" + listOfAllMetaData.size());
+
+
+                dbHandler.convertArrayListToDB(listOfAllMetaData,PlaylistActivity.this);
 
 
 
@@ -278,12 +300,10 @@ public class PlaylistActivity extends AppCompatActivity {
             catch (Exception e)
             {
                 e.printStackTrace();
-                Log.i("logtest","exc message:"+e.getMessage());
+                Log.i("logtest","exc caught at :"+e.getClass().getName());
                 int i = 0;
 
             }
-
-
 
 
             return null;
@@ -291,10 +311,14 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
 
+
+
         @Override
         protected void onPostExecute(Void aVoid)
         {
             super.onPostExecute(aVoid);
+            GlobalFunctions.log("RescanMusicAsyncTask onPostExecute");
+
             //   progressDialog.dismiss();
 
             Log.i("logtest", "onPostExecute");
@@ -305,9 +329,10 @@ public class PlaylistActivity extends AppCompatActivity {
                 {
                     progressDialog.dismiss();
 
-                    GlobalFunctions.log("finished scanning, showing playlist");
 
-                    renderRecyclerView(mp3MetaDataList);
+
+                    GlobalFunctions.log("b4 passing to render recycler view, mList:"+listOfAllMetaData);
+                    renderRecyclerView(listOfAllMetaData);
                 }
             });
 

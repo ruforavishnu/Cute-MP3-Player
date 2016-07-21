@@ -19,7 +19,7 @@ public class RescanMusic
     {
         this.progressDialogTextChangedListener = listener;
     }
-    private  List<File> getListFiles(File parentDir)
+    private  ArrayList<File> getListFiles(File parentDir)
     {
 
         boolean exceptionCaught = false;
@@ -69,14 +69,14 @@ public class RescanMusic
         return inFiles;
     }
 
-    public  List<File> findAllMusicFiles()
+    public  ArrayList<File> findAllMusicFiles()
     {
 
         Log.i("logtest","starting music scan");
         String rootLocation = Environment.getExternalStorageDirectory().getParent();
         File rootDirectory = new File(rootLocation);
 
-        List<File> allMusicFiles = getListFiles(rootDirectory);
+        ArrayList<File> allMusicFiles = getListFiles(rootDirectory);
 
 
 

@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.beaglebuddy.id3.pojo.AttachedPicture;
@@ -48,15 +49,37 @@ public class MetaData
 
 
     }
+
     public void initMetaData(String path)
     {
 
 
         try {
+
+
             MP3 mp3 = new MP3(path);
 
             songTitle = mp3.getTitle();//track title
+            if(mp3.getTitle()==null)
+            {
+
+
+                String songName = path;
+
+                int index = songName.lastIndexOf("/");
+                String s1 = songName.substring(index + 1, songName.length());
+
+
+                songTitle = s1.substring(0, s1.length() - 4);
+
+            }
+
+
             albumName = mp3.getAlbum();//album title
+            if(  mp3.getAlbum()==null)
+            {
+                albumName = "Audio";
+            }
 
             List picturesList = new ArrayList();
             picturesList = mp3.getPictures();
