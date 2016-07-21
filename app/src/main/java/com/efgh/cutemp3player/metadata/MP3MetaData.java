@@ -1,4 +1,4 @@
-package com.efgh.cutemp3player;
+package com.efgh.cutemp3player.metadata;
 
 /**
  * Created by Vishnu on 14-Jul-16.

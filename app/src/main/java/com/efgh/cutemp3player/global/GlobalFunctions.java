@@ -1,4 +1,4 @@
-package com.efgh.cutemp3player;
+package com.efgh.cutemp3player.global;
 
 import android.util.Log;
 

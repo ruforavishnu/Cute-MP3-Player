@@ -1,64 +1,69 @@
-package com.efgh.cutemp3player;
+package com.efgh.cutemp3player.playlist;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.efgh.cutemp3player.R;
+import com.efgh.cutemp3player.db.DatabaseHandler;
+import com.efgh.cutemp3player.global.GlobalFunctions;
+import com.efgh.cutemp3player.interfaces.ProgressDialogTextChangedListener;
+import com.efgh.cutemp3player.io.RescanMusic;
+import com.efgh.cutemp3player.metadata.MP3MetaData;
+import com.efgh.cutemp3player.metadata.MetaDataRetreiver;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 
-public class PlaylistActivity extends AppCompatActivity {
+public class PlaylistActivity extends AppCompatActivity implements ProgressDialogTextChangedListener
+{
 
-    private int REQ_CODE_PICK_SOUNDFILE = 11;
+
     private RecyclerView playList;
-
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
 
-
     private ProgressDialog progressDialog;
-
-
     private DatabaseHandler dbHandler;
-
     private ProgressDialogTextChangedListener mProgressDialogTextChangedListener;
 
-
-
-    public void setOnProgressDialogTextChangedListener(ProgressDialogTextChangedListener listener)
-    {
-        this.mProgressDialogTextChangedListener = listener;
-    }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_playlist);
+        setContentView(R.layout.playlist_main_activity);
 
         this.mProgressDialogTextChangedListener = null;
 
+        ViewPager mViewPager = (ViewPager)findViewById(R.id.pager);
+        PagerAdapter mPagerAdapter = new PlaylistSectionsPagerAdapter(getSupportFragmentManager());
+        mViewPager.setAdapter(mPagerAdapter);
+
+        TabLayout mTabLayout = (TabLayout)findViewById(R.id.tablayout);
+        mTabLayout.setupWithViewPager(mViewPager);
 
 
-        dbHandler = DatabaseHandler.getInstance(this);
 
-        playList = (RecyclerView)findViewById(R.id.recycler_view);
+
+
+       /* dbHandler = DatabaseHandler.getInstance(this);
+
+       // playList = (RecyclerView)findViewById(R.id.recycler_view);
 
         ArrayList<MP3MetaData> list = new ArrayList<MP3MetaData>();
 
@@ -80,52 +85,16 @@ public class PlaylistActivity extends AppCompatActivity {
             RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
             rescanTask.execute();
 
-        }
-
-/*
+        }*/
 
 
 
+    }
 
-        boolean dbContainsData = false;
-        if(dbHandler.ifDbExists())
-        {
-            GlobalFunctions.log("db does exist");
-            String listedTables = dbHandler.listAllTables();
-            GlobalFunctions.log("listed tables:"+listedTables);
-            if(listedTables!= null) //tables exist
-            {
-                GlobalFunctions.log("db has more than 0 tables");
-                if(dbHandler.getMp3MetadatasCount() > 0)
-                {
-                    GlobalFunctions.log("get metadata count > 0");
-                    dbContainsData = true;
-
-                }
-            }
-
-        }
-
-        if(dbContainsData==true)
-        {
-            GlobalFunctions.log("db contains data,reading from db");
-
-            ReadFromDbAsyncTask readDbTask = new ReadFromDbAsyncTask();
-            readDbTask.execute();
-        }
-        else
-        {
-            GlobalFunctions.log("db does not exist, scanning all music files");
-
-            RescanMusicAsyncTask rescanTask = new RescanMusicAsyncTask();
-            rescanTask.execute();
-
-            //TODO: add quick scan by reading metadataretrievers content provider and do full scan only when told to
-        }
-
-*/
-
-
+    @Override
+    public void updateProgressDialogText(String msg)
+    {
+        GlobalFunctions.log("caught listener");
     }
 
     public class ReadFromDbAsyncTask extends AsyncTask<Void,Void,Void>
@@ -151,10 +120,8 @@ public class PlaylistActivity extends AppCompatActivity {
             GlobalFunctions.log("listFromDb:"+listFromDb);
 
 
-
             return null;
         }
-
 
 
         @Override
@@ -164,12 +131,12 @@ public class PlaylistActivity extends AppCompatActivity {
 
             GlobalFunctions.log(" ReadFromDbAsyncTask onPostExecute,listFromDb:"+listFromDb);
 
-            renderRecyclerView(listFromDb);
+            //renderRecyclerView(listFromDb);
 
 
         }
     }
-    private void renderRecyclerView(ArrayList<MP3MetaData> mList)
+    /*private void renderRecyclerView(ArrayList<MP3MetaData> mList)
     {
         try
         {
@@ -196,7 +163,7 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
 
-
+*/
 
 
     public class RescanMusicAsyncTask extends AsyncTask<Void,Void,Void> implements ProgressDialogTextChangedListener
@@ -332,7 +299,7 @@ public class PlaylistActivity extends AppCompatActivity {
 
 
                     GlobalFunctions.log("b4 passing to render recycler view, mList:"+listOfAllMetaData);
-                    renderRecyclerView(listOfAllMetaData);
+                    //renderRecyclerView(listOfAllMetaData);
                 }
             });
 
@@ -479,14 +446,6 @@ public class PlaylistActivity extends AppCompatActivity {
     {
 
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQ_CODE_PICK_SOUNDFILE && resultCode == Activity.RESULT_OK)
-        {
-            if(data != null && data.getData()!= null)
-            {
-                Uri audioFileURi = data.getData();
-                String MP3Path = audioFileURi.getPath();
-                Toast.makeText(getApplicationContext(),MP3Path,Toast.LENGTH_LONG).show();
-            }
-        }
+
     }
 }

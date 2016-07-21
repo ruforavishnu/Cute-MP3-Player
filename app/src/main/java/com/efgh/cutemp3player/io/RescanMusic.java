@@ -1,12 +1,14 @@
-package com.efgh.cutemp3player;
+package com.efgh.cutemp3player.io;
 
-import android.app.ProgressDialog;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.util.Log;
+
+import com.efgh.cutemp3player.global.GlobalFunctions;
+import com.efgh.cutemp3player.interfaces.ProgressDialogTextChangedListener;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Vishnu on 15-Jul-16.
@@ -19,6 +21,8 @@ public class RescanMusic
     {
         this.progressDialogTextChangedListener = listener;
     }
+
+
     private  ArrayList<File> getListFiles(File parentDir)
     {
 
@@ -63,7 +67,7 @@ public class RescanMusic
         {
             exceptionCaught = true;
             e.printStackTrace();
-            GlobalFunctions.log("exception caught in rescan music,msg"+e.getClass().getName());
+            GlobalFunctions.log("exception caught in rescan music,msg" + e.getClass().getName());
         }
 
         return inFiles;

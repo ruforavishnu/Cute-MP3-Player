@@ -1,19 +1,18 @@
-package com.efgh.cutemp3player;
+package com.efgh.cutemp3player.db;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Debug;
 import android.util.Log;
-import android.widget.Toast;
+
+import com.efgh.cutemp3player.global.GlobalFunctions;
+import com.efgh.cutemp3player.metadata.MP3MetaData;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Vishnu on 14-Jul-16.
@@ -180,7 +179,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         {
             names = null;
         }
-        GlobalFunctions.log("DatabaseHandler class, listAllTables method returns names:"+names);
+        GlobalFunctions.log("DatabaseHandler class, listAllTables method returns names:" + names);
         return names;
     }
 

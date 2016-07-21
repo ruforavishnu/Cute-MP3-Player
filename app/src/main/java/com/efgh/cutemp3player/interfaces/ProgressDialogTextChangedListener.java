@@ -1,4 +1,4 @@
-package com.efgh.cutemp3player;
+package com.efgh.cutemp3player.interfaces;
 
 /**
  * Created by Vishnu on 20-Jul-16.

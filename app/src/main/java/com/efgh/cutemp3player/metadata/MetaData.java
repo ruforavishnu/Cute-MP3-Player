@@ -1,14 +1,13 @@
-package com.efgh.cutemp3player;
+package com.efgh.cutemp3player.metadata;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
-import android.os.AsyncTask;
-import android.util.Log;
 
 import com.beaglebuddy.id3.pojo.AttachedPicture;
 import com.beaglebuddy.mp3.MP3;
+import com.efgh.cutemp3player.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

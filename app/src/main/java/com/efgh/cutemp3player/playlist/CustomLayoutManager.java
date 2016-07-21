@@ -1,5 +1,5 @@
 
-package com.efgh.cutemp3player;
+package com.efgh.cutemp3player.playlist;
 
 import android.content.Context;
 import android.graphics.PointF;

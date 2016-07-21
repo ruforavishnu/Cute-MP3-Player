@@ -1,9 +1,11 @@
-package com.efgh.cutemp3player;
+package com.efgh.cutemp3player.metadata;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
+
+import com.efgh.cutemp3player.R;
+import com.efgh.cutemp3player.global.GlobalFunctions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -62,7 +64,7 @@ public class MetaDataRetreiver
                     if(image == null)
                     {
 
-                        image = BitmapFactory.decodeResource(myResources,R.drawable.cover);
+                        image = BitmapFactory.decodeResource(myResources, R.drawable.cover);
 
                         ByteArrayOutputStream boStream = new ByteArrayOutputStream();
 
