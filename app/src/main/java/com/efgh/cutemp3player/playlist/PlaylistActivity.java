@@ -62,6 +62,7 @@ public class PlaylistActivity extends AppCompatActivity implements ProgressDialo
 
 
 
+        GlobalFunctions.log("PlaylistActivity onCreate");
 
         dbHandler = DatabaseHandler.getInstance(this);
 
@@ -166,7 +167,7 @@ public class PlaylistActivity extends AppCompatActivity implements ProgressDialo
 
 
 
-            mAdapter = new RecycleViewAdapter(mList);
+            mAdapter = new AllSongsRecyclerViewAdapter(mList);
 
             playList.setAdapter(mAdapter);
             Log.i("logtest", "playlist adapter set");
@@ -378,7 +379,7 @@ public class PlaylistActivity extends AppCompatActivity implements ProgressDialo
 
             }
 
-            mAdapter = new RecycleViewAdapter(mp3FileNamesList,getApplicationContext());
+            mAdapter = new AllSongsRecyclerViewAdapter(mp3FileNamesList,getApplicationContext());
 
             playList.setAdapter(mAdapter);
             Log.i("logtest","playlist adapter set");

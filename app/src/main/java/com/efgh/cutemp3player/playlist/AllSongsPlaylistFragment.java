@@ -63,10 +63,10 @@ public class AllSongsPlaylistFragment extends Fragment implements IRescanLibrary
     {
         GlobalFunctions.log("rescan completed listener caught from AllSongsPlaylistFragment, mList size:"+mList.size());
 
-       /* mLayoutManager = new CustomLayoutManager(getContext());
+        mLayoutManager = new CustomLayoutManager(getContext());
         playList.setLayoutManager(mLayoutManager);
-        mAdapter = new RecycleViewAdapter(mList, R.layout.recyclerview_layout);
+        mAdapter = new AllSongsRecyclerViewAdapter(mList);
 
-        playList.setAdapter(mAdapter);*/
+        playList.setAdapter(mAdapter);
     }
 }

@@ -19,11 +19,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.efgh.cutemp3player.R;
-import com.efgh.cutemp3player.global.GlobalFunctions;
 import com.efgh.cutemp3player.metadata.MP3MetaData;
 
 
-public  class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.ViewHolder>
+public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsRecyclerViewAdapter.ViewHolder>
 {
     private List<MP3MetaData> mDataset;
     private Context mContext;
@@ -72,12 +71,12 @@ public  class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter
 
     /////////////////////////////////////////////////////////////
 
-    public void add(int position, MP3MetaData item) {
+    public synchronized void add(int position, MP3MetaData item) {
         mDataset.add(position, item);
         notifyItemInserted(position);
     }
 
-    public void remove(MP3MetaData item)
+    public synchronized void remove(MP3MetaData item)
     {
         int position = mDataset.indexOf(item);
         mDataset.remove(position);
@@ -85,14 +84,14 @@ public  class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public RecycleViewAdapter(List<MP3MetaData> myDataset, int layout)
+    public AllSongsRecyclerViewAdapter(List<MP3MetaData> myDataset)
     {
         mDataset = myDataset;//here we have obtained the mp3FilesList -> array containing the all mp3 file paths
         pathList = new ArrayList<String>();
         imageList = new ArrayList<Bitmap>();
         songTitleList = new ArrayList<String>();
         albumNameList = new ArrayList<String>();
-        reqdLayout = layout;
+
 
 
         for(int i =0; i < mDataset.size();i++)
@@ -128,10 +127,10 @@ public  class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter
 
     // Create new views (invoked by the layout manager)
     @Override
-    public RecycleViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,int viewType)
+    public synchronized AllSongsRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,int viewType)
     {
         // create a new view
-        View v = LayoutInflater.from(parent.getContext()).inflate(reqdLayout, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_layout, parent, false);
         // set the view's size, margins, paddings and layout parameters
         ViewHolder vh = new ViewHolder(v);
 
@@ -143,7 +142,7 @@ public  class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position)
+    public synchronized void onBindViewHolder(final ViewHolder holder, int position)
     {
 
 
@@ -195,7 +194,7 @@ public  class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
-    public int getItemCount() {
+    public synchronized int getItemCount() {
         return mDataset.size();
     }
 

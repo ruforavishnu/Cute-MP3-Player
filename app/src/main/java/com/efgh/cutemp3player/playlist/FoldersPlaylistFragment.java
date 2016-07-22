@@ -61,14 +61,14 @@ public class FoldersPlaylistFragment extends Fragment implements IRescanLibraryC
     @Override
     public void onRescanComplete(List<MP3MetaData> mList)
     {
-        GlobalFunctions.log("rescan completed listener caught from FoldersPlaylistFragment, mList size:"+mList.size());
+        GlobalFunctions.log("rescan completed listener caught from FoldersPlaylistFragment, mList size:" + mList.size());
 
 
-       /* mLayoutManager = new CustomLayoutManager(getContext());
+        mLayoutManager = new CustomLayoutManager(getContext());
         playList.setLayoutManager(mLayoutManager);
-        mAdapter = new RecycleViewAdapter(mList,R.layout.recyclerview_layout);
+        mAdapter = new FolderSongsRecyclerViewAdapter(mList);
 
 
-        playList.setAdapter(mAdapter);*/
+        playList.setAdapter(mAdapter);
     }
 }

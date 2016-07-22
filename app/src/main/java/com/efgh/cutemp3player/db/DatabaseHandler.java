@@ -67,7 +67,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     public void convertArrayListToDB(ArrayList<MP3MetaData> mp3MetaDataList,Context context)
     {
 
-        //Debug.waitForDebugger();
+
 
         DatabaseHandler instance = DatabaseHandler.getInstance(context);
 
@@ -250,7 +250,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
             mDb.insert(TABLE_MP3METADATA, null, values);
         }
-      //  Debug.waitForDebugger();
+
 
         mDb.close();
     }
