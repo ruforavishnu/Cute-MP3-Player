@@ -57,6 +57,7 @@ public class PlaylistActivity extends AppCompatActivity implements ProgressDialo
         mViewPager.setAdapter(mPagerAdapter);
 
         TabLayout mTabLayout = (TabLayout)findViewById(R.id.tablayout);
+        
         mTabLayout.setupWithViewPager(mViewPager);
 
 

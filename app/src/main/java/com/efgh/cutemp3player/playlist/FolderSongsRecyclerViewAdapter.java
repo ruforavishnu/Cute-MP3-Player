@@ -4,6 +4,7 @@ package com.efgh.cutemp3player.playlist;
  * Created by Vishnu on 05-Jul-16.
  */
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,6 +103,8 @@ public  class FolderSongsRecyclerViewAdapter extends RecyclerView.Adapter<Folder
 
             songTitleList.add(mp3MetaData.getSongTitle());
             albumNameList.add(mp3MetaData.getAlbumTitle());
+
+
 
 
 
