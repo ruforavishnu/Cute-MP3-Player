@@ -105,6 +105,8 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
 
 
 
+
+
             byte[] albumArt = mp3MetaData.getAlbumArt();
 
             if(albumArt != null)
