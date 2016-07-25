@@ -61,7 +61,7 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
 
             txtHeader.setText("Unknown artist");
             txtFooter.setText("Audio");
-            albumArtImageView.setImageResource(R.drawable.cover);
+            albumArtImageView.setImageResource(R.drawable.newplaybutton);
 
             v.setClickable(true);
 
@@ -102,12 +102,14 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
 
             songTitleList.add(mp3MetaData.getSongTitle());
             albumNameList.add(mp3MetaData.getAlbumTitle());
+            Bitmap defaultBitmap = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.newplaybutton);
+            imageList.add(defaultBitmap);
 
 
 
 
 
-            byte[] albumArt = mp3MetaData.getAlbumArt();
+           /* byte[] albumArt = mp3MetaData.getAlbumArt();
 
             if(albumArt != null)
             {
@@ -119,7 +121,7 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
             {
                 Bitmap defaultBitmap = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.cover);
                 imageList.add(defaultBitmap);
-            }
+            }*/
 
 
 
@@ -157,14 +159,15 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
         {
 
             Bitmap img = imageList.get(position);
-            if(img == null)
+            holder.albumArtImageView.setImageResource(R.drawable.newplaybutton);
+           /* if(img == null)
             {
                 holder.albumArtImageView.setImageResource(R.drawable.cover);
             }
             else
             {
                 holder.albumArtImageView.setImageBitmap(imageList.get(position));
-            }
+            }*/
             holder.txtHeader.setText(songTitleList.get(position));
             holder.txtFooter.setSelected(true);
 

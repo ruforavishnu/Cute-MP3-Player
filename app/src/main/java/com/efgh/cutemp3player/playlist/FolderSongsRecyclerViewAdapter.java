@@ -62,7 +62,7 @@ public  class FolderSongsRecyclerViewAdapter extends RecyclerView.Adapter<Folder
 
             txtHeader.setText("Unknown artist");
             txtFooter.setText("Audio");
-            albumArtImageView.setImageResource(R.drawable.cover);
+            albumArtImageView.setImageResource(R.drawable.newplaybutton);
 
             v.setClickable(true);
 
@@ -122,7 +122,7 @@ public  class FolderSongsRecyclerViewAdapter extends RecyclerView.Adapter<Folder
                 imageList.add(defaultBitmap);
             }*/
 
-            Bitmap defaultBitmap = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.cover);
+            Bitmap defaultBitmap = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.newplaybutton);
             imageList.add(defaultBitmap);
 
 
@@ -160,7 +160,9 @@ public  class FolderSongsRecyclerViewAdapter extends RecyclerView.Adapter<Folder
         try
         {
 
-            Bitmap img = imageList.get(position);
+            holder.albumArtImageView.setImageResource(R.drawable.newplaybutton);
+           /* Bitmap img = imageList.get(position);
+
             if(img == null)
             {
                 holder.albumArtImageView.setImageResource(R.drawable.cover);
@@ -168,7 +170,7 @@ public  class FolderSongsRecyclerViewAdapter extends RecyclerView.Adapter<Folder
             else
             {
                 holder.albumArtImageView.setImageBitmap(imageList.get(position));
-            }
+            }*/
             holder.txtHeader.setText(songTitleList.get(position));
             holder.txtFooter.setSelected(true);
 

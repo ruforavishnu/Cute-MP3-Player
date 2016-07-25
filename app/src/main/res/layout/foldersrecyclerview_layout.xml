@@ -14,7 +14,7 @@
         android:layout_marginRight="6dip"
         android:contentDescription="TODO"
 
-        android:src="@mipmap/ic_launcher"
+        android:src="@drawable/newplaybutton"
         android:scaleType="fitXY" />
 
 
