@@ -61,6 +61,7 @@ public  class FolderSongsRecyclerViewAdapter extends RecyclerView.Adapter<Folder
             albumArtImageView = (ImageView)v.findViewById(R.id.thumbnail);
 
             txtHeader.setText("Unknown artist");
+            txtHeader.setSelected(true);
             txtFooter.setText("Audio");
             albumArtImageView.setImageResource(R.drawable.newplaybutton);
 

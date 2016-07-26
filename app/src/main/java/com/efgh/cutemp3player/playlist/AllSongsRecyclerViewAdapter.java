@@ -19,7 +19,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.efgh.cutemp3player.R;
+import com.efgh.cutemp3player.global.GlobalFunctions;
 import com.efgh.cutemp3player.metadata.MP3MetaData;
+import com.efgh.cutemp3player.metadata.MyTag;
 
 
 public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsRecyclerViewAdapter.ViewHolder>
@@ -31,11 +33,6 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
     private List<Bitmap> imageList;
     private List<String> songTitleList;
     private List<String> albumNameList;
-
-    private int reqdLayout;
-
-
-
 
 
     public void highlight(View view, int position)
@@ -60,10 +57,23 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
             albumArtImageView = (ImageView)v.findViewById(R.id.thumbnail);
 
             txtHeader.setText("Unknown artist");
+            txtHeader.setSelected(true);
             txtFooter.setText("Audio");
             albumArtImageView.setImageResource(R.drawable.newplaybutton);
 
             v.setClickable(true);
+
+
+            v.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    GlobalFunctions.log("clicked on view, song name:" + txtHeader.getText().toString());
+                    MyTag myTagObj = (MyTag)txtHeader.getTag();
+                    GlobalFunctions.log("clicked songs path:"+myTagObj.getMp3FilePath());
+                }
+            });
 
 
         }
@@ -71,12 +81,12 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
 
     /////////////////////////////////////////////////////////////
 
-    public synchronized void add(int position, MP3MetaData item) {
+    public  void add(int position, MP3MetaData item) {
         mDataset.add(position, item);
         notifyItemInserted(position);
     }
 
-    public synchronized void remove(MP3MetaData item)
+    public  void remove(MP3MetaData item)
     {
         int position = mDataset.indexOf(item);
         mDataset.remove(position);
@@ -104,25 +114,7 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
             albumNameList.add(mp3MetaData.getAlbumTitle());
             Bitmap defaultBitmap = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.newplaybutton);
             imageList.add(defaultBitmap);
-
-
-
-
-
-           /* byte[] albumArt = mp3MetaData.getAlbumArt();
-
-            if(albumArt != null)
-            {
-                Bitmap defaultBitmap = BitmapFactory.decodeByteArray(albumArt,0,albumArt.length);
-                imageList.add(defaultBitmap);
-
-            }
-            else
-            {
-                Bitmap defaultBitmap = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.cover);
-                imageList.add(defaultBitmap);
-            }*/
-
+            pathList.add((mp3MetaData.getPath()));
 
 
 
@@ -131,7 +123,7 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
 
     // Create new views (invoked by the layout manager)
     @Override
-    public synchronized AllSongsRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,int viewType)
+    public  AllSongsRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,int viewType)
     {
         // create a new view
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_layout, parent, false);
@@ -146,7 +138,7 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public synchronized void onBindViewHolder(final ViewHolder holder, int position)
+    public  void onBindViewHolder(final ViewHolder holder, int position)
     {
 
 
@@ -160,23 +152,16 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
 
             Bitmap img = imageList.get(position);
             holder.albumArtImageView.setImageResource(R.drawable.newplaybutton);
-           /* if(img == null)
-            {
-                holder.albumArtImageView.setImageResource(R.drawable.cover);
-            }
-            else
-            {
-                holder.albumArtImageView.setImageBitmap(imageList.get(position));
-            }*/
+
             holder.txtHeader.setText(songTitleList.get(position));
             holder.txtFooter.setSelected(true);
 
             holder.txtFooter.setText(albumNameList.get(position));
 
-            /*MyTag pathTag = new MyTag(mDataset.get(position));
+            MyTag pathTag = new MyTag(pathList.get(position));
 
             holder.txtHeader.setTag(pathTag);
-*/
+
 
 
 
@@ -199,7 +184,7 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
-    public synchronized int getItemCount() {
+    public  int getItemCount() {
         return mDataset.size();
     }
 
