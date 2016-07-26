@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.efgh.cutemp3player.R;
 import com.efgh.cutemp3player.global.GlobalFunctions;
+import com.efgh.cutemp3player.global.SongEventNotifier;
 import com.efgh.cutemp3player.metadata.MP3MetaData;
 import com.efgh.cutemp3player.metadata.MyTag;
 
@@ -71,12 +72,24 @@ public  class AllSongsRecyclerViewAdapter extends RecyclerView.Adapter<AllSongsR
                 {
                     GlobalFunctions.log("clicked on view, song name:" + txtHeader.getText().toString());
                     MyTag myTagObj = (MyTag)txtHeader.getTag();
-                    GlobalFunctions.log("clicked songs path:"+myTagObj.getMp3FilePath());
+                    GlobalFunctions.log("clicked songs path:" + myTagObj.getMp3FilePath());
+                    SongEventNotifier mSongEventNotifier = SongEventNotifier.getInstance();
+                    mSongEventNotifier.setSongPath(myTagObj.getMp3FilePath());
+
+
+
+
+
+
+
+
                 }
             });
 
 
         }
+
+
     }
 
     /////////////////////////////////////////////////////////////

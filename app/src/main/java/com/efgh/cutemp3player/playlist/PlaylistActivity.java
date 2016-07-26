@@ -1,21 +1,31 @@
 package com.efgh.cutemp3player.playlist;
 
+
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.efgh.cutemp3player.R;
 import com.efgh.cutemp3player.db.DatabaseHandler;
 import com.efgh.cutemp3player.global.EventNotifier;
 import com.efgh.cutemp3player.global.GlobalFunctions;
+import com.efgh.cutemp3player.global.SongEventNotifier;
+import com.efgh.cutemp3player.interfaces.ISongSelectedListener;
 import com.efgh.cutemp3player.interfaces.ProgressDialogTextChangedListener;
 import com.efgh.cutemp3player.interfaces.RescanLibraryCompletedListener;
 import com.efgh.cutemp3player.io.RescanMusic;
@@ -24,10 +34,9 @@ import com.efgh.cutemp3player.metadata.MetaDataRetreiver;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 
-public class PlaylistActivity extends AppCompatActivity implements ProgressDialogTextChangedListener
+public class PlaylistActivity extends AppCompatActivity implements ProgressDialogTextChangedListener, ISongSelectedListener
 {
 
 
@@ -59,6 +68,10 @@ public class PlaylistActivity extends AppCompatActivity implements ProgressDialo
         TabLayout mTabLayout = (TabLayout)findViewById(R.id.tablayout);
 
         mTabLayout.setupWithViewPager(mViewPager);
+
+        SongEventNotifier mSongEventNotifier = SongEventNotifier.getInstance();
+        mSongEventNotifier.register(this);
+
 
 
 
@@ -94,6 +107,9 @@ public class PlaylistActivity extends AppCompatActivity implements ProgressDialo
 
 
     }
+
+
+
     public void setOnRescanLibraryCompletedListener(RescanLibraryCompletedListener listener)
     {
         this.mRescanLibraryCompletedListener = listener;
@@ -105,6 +121,24 @@ public class PlaylistActivity extends AppCompatActivity implements ProgressDialo
         GlobalFunctions.log("caught listener");
     }
 
+
+
+
+
+    @Override
+    public void onSongSelected(String songPath)
+    {
+        GlobalFunctions.log("listening from Playlist activity");
+       // getLayoutInflater().inflate(R.layout.fragment_now_playing_song, );
+        RelativeLayout playlistLayout = (RelativeLayout)findViewById(R.id.PlaylistLayout);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View nowPlayingView = inflater.inflate(R.layout.fragment_now_playing_song, playlistLayout,true);
+        TextView songName = (TextView)nowPlayingView.findViewById(R.id.songPath);
+        songName.setText(songPath);
+
+
+
+    }
 
 
     public class ReadFromDbAsyncTask extends AsyncTask<Void,Void,Void>

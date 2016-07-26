@@ -13,8 +13,10 @@ import com.efgh.cutemp3player.R;
 import com.efgh.cutemp3player.db.DatabaseHandler;
 import com.efgh.cutemp3player.global.EventNotifier;
 import com.efgh.cutemp3player.global.GlobalFunctions;
+import com.efgh.cutemp3player.global.SongEventNotifier;
 import com.efgh.cutemp3player.interfaces.IRescanLibraryCompletedListener;
 
+import com.efgh.cutemp3player.interfaces.ISongSelectedListener;
 import com.efgh.cutemp3player.metadata.MP3MetaData;
 
 import java.util.List;
@@ -37,7 +39,6 @@ public class AllSongsPlaylistFragment extends Fragment implements IRescanLibrary
 
 
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -51,6 +52,7 @@ public class AllSongsPlaylistFragment extends Fragment implements IRescanLibrary
 
         EventNotifier mEventNotifier = EventNotifier.getInstance();
         mEventNotifier.register(this);
+
 
 
         return holder;
@@ -69,4 +71,5 @@ public class AllSongsPlaylistFragment extends Fragment implements IRescanLibrary
 
         playList.setAdapter(mAdapter);
     }
+
 }

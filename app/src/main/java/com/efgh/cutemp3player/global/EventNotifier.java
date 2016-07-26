@@ -1,10 +1,7 @@
 package com.efgh.cutemp3player.global;
 
-import android.content.Context;
-
 import com.efgh.cutemp3player.interfaces.IEventNotifier;
 import com.efgh.cutemp3player.interfaces.IRescanLibraryCompletedListener;
-import com.efgh.cutemp3player.interfaces.RescanLibraryCompletedListener;
 import com.efgh.cutemp3player.metadata.MP3MetaData;
 
 import java.util.ArrayList;
@@ -22,6 +19,8 @@ public class EventNotifier implements IEventNotifier
 
     private List<IRescanLibraryCompletedListener> observersList;
 
+
+
     private static EventNotifier _instance;
 
 
@@ -30,6 +29,7 @@ public class EventNotifier implements IEventNotifier
     public EventNotifier()
     {
         observersList = new ArrayList<IRescanLibraryCompletedListener>();
+
     }
 
     public static synchronized EventNotifier getInstance()
@@ -52,6 +52,7 @@ public class EventNotifier implements IEventNotifier
         notifyObservers(mp3MetaDataList);
     }
 
+
     @Override
     public void register(IRescanLibraryCompletedListener listener)
     {
@@ -73,4 +74,5 @@ public class EventNotifier implements IEventNotifier
             observersList.get(i).onRescanComplete(mp3MetaDataList);
         }
     }
+
 }
